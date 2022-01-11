@@ -11,11 +11,17 @@ The error Message is importent! it will be written in the audit log and help the
 import { Client, Request } from '@pepperi-addons/debug-server'
 import { Relation } from '@pepperi-addons/papi-sdk'
 import MyService from './my.service';
+import { BlockDataScheme } from './metadata';
 
 export async function install(client: Client, request: Request): Promise<any> {
     // For page block template uncomment this.
-    const res = await createPageBlockRelation(client);
-    return res;
+    const relationsRes = await createPageBlockRelation(client);
+    const adalRes = await createADALSchemes(client)
+    
+    return {
+        success: adalRes.success && relationsRes.success,
+        errorMessage: `adalRes: ${adalRes.errorMessage}, relationsRes:  ${relationsRes.errorMessage}`
+    };
 }
 
 export async function uninstall(client: Client, request: Request): Promise<any> {
@@ -58,5 +64,21 @@ async function createPageBlockRelation(client: Client): Promise<any> {
         return { success:true, resultObject: result };
     } catch(err) {
         return { success: false, resultObject: err , errorMessage: `Error in upsert relation. error - ${err}`};
+    }
+}
+async function createADALSchemes(client: Client) {
+    try {
+        const service = new MyService(client);
+        await service.crateADALTable(BlockDataScheme);
+        return {
+            success: true,
+            errorMessage: ""
+        }
+    }
+    catch (err) {
+        return {
+            success: false,
+            errorMessage: (err instanceof TypeError && 'message' in err) ? err.message : 'Unknown Error Occured',
+        }
     }
 }

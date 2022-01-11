@@ -16,6 +16,11 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@pepperi-addons/scripts": "^2.0.4"
+		"@peculiar/webcrypto": "^1.2.3",
+		"@pepperi-addons/scripts": "^2.0.4",
+		"crypto-browserify": "^3.11.0",
+		"crypto-js": "^4.1.1",
+		"cryptr": "^6.0.2",
+		"node-libs-browser": "^2.2.1"
 	}
 }
