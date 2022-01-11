@@ -18,13 +18,12 @@ export class BlockService {
         return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/save_secret_key`, secretKey).toPromise();
     }
 
-    async getUserHash() {
-        let email = this.getEmail()
+    async getUserHash(email: string) {
         let url = `/addons/api/${this.addonService.addonUUID}/api/get_user_hash?Email=${email}`
         return this.addonService.pepGet(encodeURI(url)).toPromise();
     }
 
-    getEmail() {
-        return this.addonService.userEmail;
+    async getUser() {
+        return await this.addonService.getUser();
     }
 }

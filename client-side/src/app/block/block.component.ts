@@ -2,6 +2,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BlockService } from './block.service';
 import { OnLoadOption, OnHideOption, LauncherVisibility } from '../../../../shared/entities'
+import { AddonService } from '../addon.service'
 
 @Component({
     selector: 'block',
@@ -19,9 +20,11 @@ export class BlockComponent implements OnInit {
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(
-         private BlockService: BlockService
+         private BlockService: BlockService,
+         private addonService: AddonService,
         // private translate: TranslateService
     ) {
+        this.addonService.addonUUID = "26f57caf-1b8d-46a3-ac31-0e8ac9260657"  
     }
 
     ngOnInit(): void {
@@ -53,11 +56,13 @@ export class BlockComponent implements OnInit {
         await this.BlockService.saveSecretKey(this.secretKey);
     }
 
-    openChat() {
+    async openChat() {
+        let user = await this.BlockService.getUser();
         window["Intercom"]('boot', {
             app_id: this.appID,
-            email:  this.BlockService.getEmail(),
-            user_hash: this.BlockService.getUserHash(),
+            name: user.FirstName,
+            email:  user.Email,
+            user_hash: this.BlockService.getUserHash(user.Email),
             hide_default_launcher: this.launcherVisibility == LauncherVisibility.Hidden
         });
 

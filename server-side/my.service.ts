@@ -2,8 +2,7 @@ import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import { DUMMY_SECRET_KEY, BLOCK_CPI_META_DATA_TABLE_NAME } from '../shared/entities';
 import * as encryption from '../shared/encryption-service'
-
-const CryptoJS = require("crypto-js");
+import * as CryptoJS from 'crypto-js'
 
 class MyService {
 
@@ -63,8 +62,11 @@ class MyService {
 
       async getUserHash(query) {
           const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(objs => objs[0]);
-          let secretKey = await encryption.decryptSecretKey(data.secretKey, this.addonSecretKey)
-          return await this.HMAC(secretKey, query.Email)
+          if (data.secretKey) {
+            let secretKey = await encryption.decryptSecretKey(data.secretKey, this.addonSecretKey)
+            return await this.HMAC(secretKey, query.Email)
+          }
+          throw new Error(`secretKey does not exist`);
       }
  }
 

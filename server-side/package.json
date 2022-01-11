@@ -20,7 +20,7 @@
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^8.0.0",
         "@types/dotenv": "^8.2.0",
-        "@types/node": "^10.17.24",
+        "@types/node": "^10.17.60",
         "nodemon": "^2.0.4",
         "rollup": "^2.10.9",
         "rollup-plugin-typescript2": "^0.27.1",
@@ -29,6 +29,8 @@
     },
     "dependencies": {
         "@pepperi-addons/debug-server": "*",
-        "@pepperi-addons/papi-sdk": "*"
+        "@pepperi-addons/papi-sdk": "*",
+        "@types/crypto-js": "^4.1.0",
+        "crypto-js": "^4.1.1"
     }
 }

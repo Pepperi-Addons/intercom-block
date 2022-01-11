@@ -13,7 +13,6 @@ export class AddonService {
     parsedToken: any
     papiBaseURL = ''
     addonUUID: string;
-    userEmail: string;
 
     get papiClient(): PapiClient {
         return new PapiClient({
@@ -32,8 +31,6 @@ export class AddonService {
         const accessToken = this.session.getIdpToken();
         this.parsedToken = jwt(accessToken);
         this.papiBaseURL = this.parsedToken["pepperi.baseurl"]
-        this.userEmail = this.parsedToken["email"]
-
     }
 
     async get(endpoint: string): Promise<any> {
@@ -51,6 +48,10 @@ export class AddonService {
     pepPost(endpoint: string, body: any): Observable<any> {
         return this.pepHttp.postPapiApiCall(endpoint, body);
 
+    }
+
+    async getUser() {
+        return await this.papiClient.get(`/users/uuid/${this.parsedToken["pepperi.useruuid"]}`)
     }
 
 }
