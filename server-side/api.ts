@@ -31,4 +31,13 @@ export async function get_user_data(client: Client, request: Request)  {
         throw new Error(`Method ${request.method} not supported`);
     }
 }
+export async function is_secret_key_exist(client: Client, request: Request)  {
+    const service = new MyService(client)
 
+    if (request.method === 'GET') {
+        return service.isSecretKeyExist(request.query)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}

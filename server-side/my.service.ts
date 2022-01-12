@@ -41,10 +41,10 @@ class MyService {
     // in case the object have a dummy secret key, we need to take care and don't save it.
     // so when we have a dummy secret key, we remove it from the object, and the upsert to ADAL will not change the current secret key
     async handleSecretKey(data: any) {
-        if (data.appID) {
+        if (data.Key) {
             let currentDataBlock;
             try {
-                currentDataBlock = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(data.appID)
+                currentDataBlock = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(data.Key)
             }
             catch {
                 currentDataBlock = {};
@@ -57,20 +57,24 @@ class MyService {
             }
             else if (data.newSecretKey && data.newSecretKey.length > 0) { // real secret key
                 let enctyptedSecretKey = encryption.encryptSecretKey(data.newSecretKey, this.addonSecretKey)
-                currentDataBlock.Key = data.appID;
+                currentDataBlock.Key = data.Key;
                 currentDataBlock.SecretKey = enctyptedSecretKey;
+                await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).upsert(currentDataBlock);
+            }
+            else {
+                currentDataBlock.SecretKey = "";
                 await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).upsert(currentDataBlock);
             }
         }
         else {
-            throw new Error(`appID is required`);
+            throw new Error(`Key is required`);
         }
     }
 
     async getUserData(query) {
         const user = await this.papiClient.get(`/users/uuid/${query.UserUUID}`);
         try {
-            const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.AppId);
+            const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.Key);
             if (data.SecretKey) {
                 let secretKey = await encryption.decryptSecretKey(data.SecretKey, this.addonSecretKey)
                 const userHash = await encryption.HMAC(secretKey, user.Email)
@@ -82,6 +86,16 @@ class MyService {
         }
         catch {
             return { "FirstName": user.FirstName, "Email": user.Email }
+        }
+    }
+
+    async isSecretKeyExist(query) {
+        try {
+            let blockData = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.Key)
+            return (blockData.SecretKey && blockData.SecretKey.length > 0);
+        }
+        catch {
+            return false;
         }
     }
 }

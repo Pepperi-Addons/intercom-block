@@ -14,17 +14,22 @@ export class BlockService {
           
     }
 
-    async saveSecretKey(appId: string, secretKey: string) {
+    async saveSecretKey(key: string, secretKey: string) {
         const obj = {
-            "appID": appId,
+            "Key": key,
             "newSecretKey": secretKey
         };
         return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/save_secret_key`, obj).toPromise();
     }
 
-    async getUser(appId) {
+    async getUser(key) {
         let userUUID = this.addonService.parsedToken["pepperi.useruuid"]
-        let url = `/addons/api/${this.addonService.addonUUID}/api/get_user_data?AppId=${appId}&UserUUID=${userUUID}`
+        let url = `/addons/api/${this.addonService.addonUUID}/api/get_user_data?Key=${key}&UserUUID=${userUUID}`
+        return await this.addonService.pepGet(encodeURI(url)).toPromise();
+    }
+
+    async isSecretKeyExist(key: string) {
+        let url = `/addons/api/${this.addonService.addonUUID}/api/is_secret_key_exist?Key=${key}`
         return await this.addonService.pepGet(encodeURI(url)).toPromise();
     }
 }

@@ -1,8 +1,9 @@
 import { TranslateService } from '@ngx-translate/core';
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { OnLoadOption, OnHideOption, LauncherVisibility } from '../../../../shared/entities'
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { OnLoadOption, OnHideOption, LauncherVisibility, DUMMY_SECRET_KEY } from '../../../../shared/entities'
 import { BlockService } from '../block/block.service';
 import { AddonService } from '../addon.service'
+import { v4 as uuid } from 'uuid';
 
 @Component({
     selector: 'block-editor',
@@ -26,6 +27,7 @@ export class BlockEditorComponent implements OnInit {
     onLoad: OnLoadOption;
     launcherVisibility: LauncherVisibility;
     secretKey: string;
+    uuid: string;
 
     isIdentityVerifictionOn: boolean = true;
     onLoadOptions: { key: OnLoadOption, value: string }[];
@@ -36,15 +38,24 @@ export class BlockEditorComponent implements OnInit {
         // When finish load raise block-editor-loaded.
         // this.hostEvents.emit({action: 'block-editor-loaded'});
 
-        this.initOptionsLists()
-        this.onLoad = this.hostObject.configuration?.OnLoad ?? "None";
-        this.onHide = this.hostObject.configuration?.OnHide ?? "Nothing";
-        this.appID = this.hostObject.configuration?.AppID ?? "";
-        this.launcherVisibility = this.hostObject.configuration?.LauncherVisibility;
+        this.initOptionsLists();
+        this.initHostObjectData();
     }
 
     ngOnChanges(e: any): void {
 
+    }
+
+    async initHostObjectData() {
+        this.onLoad = this.hostObject.configuration?.OnLoad ?? "None";
+        this.onHide = this.hostObject.configuration?.OnHide ?? "Nothing";
+        this.appID = this.hostObject.configuration?.AppID ?? "";
+        this.launcherVisibility = this.hostObject.configuration?.LauncherVisibility;
+        this.uuid = this.hostObject.configuration?.Key;
+
+        if (this.uuid && await this.blockService.isSecretKeyExist(this.uuid) == true) {
+            this.secretKey = DUMMY_SECRET_KEY
+        }
     }
 
     initOptionsLists() {
@@ -100,12 +111,16 @@ export class BlockEditorComponent implements OnInit {
                 "AppID": this.appID,
                 "OnLoad": this.onLoad,
                 "OnHide": this.onHide,
-                "LauncherVisibility": this.launcherVisibility
+                "LauncherVisibility": this.launcherVisibility,
+                "Key": this.uuid
             }
         })
     }
 
     async saveSecretKey(secretKey: string) {
-        await this.blockService.saveSecretKey(this.appID, secretKey);
+        if(this.uuid === undefined) {
+            this.uuid = uuid();
+        }
+        await this.blockService.saveSecretKey(this.uuid, secretKey);
     }
 }

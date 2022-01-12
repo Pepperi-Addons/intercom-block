@@ -11,19 +11,20 @@ import { AddonService } from '../addon.service'
 })
 export class BlockComponent implements OnInit {
     @Input() hostObject: any;
-     appID: string;
+    appID: string;
     actionOnHide: OnHideOption = "Nothing";
     actionOnLoad: OnLoadOption = "None";
     launcherVisibility: LauncherVisibility;
+    uuid: string;
 
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(
-         private blockService: BlockService,
-         private addonService: AddonService,
+        private blockService: BlockService,
+        private addonService: AddonService,
         // private translate: TranslateService
     ) {
-        this.addonService.addonUUID = "26f57caf-1b8d-46a3-ac31-0e8ac9260657"  
+        this.addonService.addonUUID = "26f57caf-1b8d-46a3-ac31-0e8ac9260657"
     }
 
     ngOnInit(): void {
@@ -44,28 +45,27 @@ export class BlockComponent implements OnInit {
     }
 
     ngOnChanges(e: any): void {
-         if (this.hostObject.configuration) {
-             this.appID = this.hostObject.configuration.AppID;
-             this.actionOnLoad = this.hostObject.configuration.OnLoad;
-             this.actionOnHide = this.hostObject.configuration.OnHide;
-             this.launcherVisibility = this.hostObject.LauncherVisibility;
-         }
+        if (this.hostObject.configuration) {
+            this.appID = this.hostObject.configuration.AppID;
+            this.actionOnLoad = this.hostObject.configuration.OnLoad;
+            this.actionOnHide = this.hostObject.configuration.OnHide;
+            this.launcherVisibility = this.hostObject.configuration.LauncherVisibility;
+            this.uuid = this.hostObject.configuration.Key;
+        }
     }
 
     async openChat() {
-        if (this.appID) {
-            let user = await this.blockService.getUser(this.appID);
-            window["Intercom"]('boot', {
-                app_id: this.appID,
-                name: user.FirstName,
-                email:  user.Email,
-                user_hash: user.UserHash,
-                hide_default_launcher: this.launcherVisibility == "Hidden"
-            });
-    
-            this.onLoad()
-            this.onHide()
-        }
+        let user = await this.blockService.getUser(this.uuid);
+        window["Intercom"]('boot', {
+            app_id: this.appID,
+            name: user.FirstName,
+            email: user.Email,
+            user_hash: user.UserHash,
+            hide_default_launcher: this.launcherVisibility == "Hidden"
+        });
+
+        this.onLoad()
+        this.onHide()
     }
 
     onLoad() {
