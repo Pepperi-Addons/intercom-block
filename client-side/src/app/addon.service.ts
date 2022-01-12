@@ -48,9 +48,4 @@ export class AddonService {
         return this.pepHttp.postPapiApiCall(endpoint, body);
 
     }
-
-    async getUser() {
-        return await this.papiClient.get(`/users/uuid/${this.parsedToken["pepperi.useruuid"]}`)
-    }
-
 }

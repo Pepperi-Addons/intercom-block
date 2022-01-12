@@ -48,6 +48,7 @@ export class BlockComponent implements OnInit {
              this.appID = this.hostObject.configuration.AppID;
              this.actionOnLoad = this.hostObject.configuration.OnLoad;
              this.actionOnHide = this.hostObject.configuration.OnHide;
+             this.launcherVisibility = this.hostObject.LauncherVisibility;
          }
     }
 

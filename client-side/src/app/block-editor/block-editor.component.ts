@@ -1,7 +1,8 @@
 import { TranslateService } from '@ngx-translate/core';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { OnLoadOption, OnHideOption, LauncherVisibility } from '../../../../shared/entities'
 import { BlockService } from '../block/block.service';
+import { AddonService } from '../addon.service'
 
 @Component({
     selector: 'block-editor',
@@ -12,9 +13,12 @@ export class BlockEditorComponent implements OnInit {
     @Input() hostObject: any;
 
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
+    @ViewChild('secretKeyTextbox') secretKeyTextBox: any;
 
     constructor(private translate: TranslateService,
-                private blockService: BlockService) { 
+        private addonService: AddonService,
+        private blockService: BlockService) {
+        this.addonService.addonUUID = "26f57caf-1b8d-46a3-ac31-0e8ac9260657"
     }
 
     appID: string;
@@ -24,9 +28,9 @@ export class BlockEditorComponent implements OnInit {
     secretKey: string;
 
     isIdentityVerifictionOn: boolean = true;
-    onLoadOptions: {key: OnLoadOption, value: string}[];
-    onHideOptions: {key: OnHideOption, value: string}[];
-    launcherVisibilityOptions: {key: LauncherVisibility, value: string}[];
+    onLoadOptions: { key: OnLoadOption, value: string }[];
+    onHideOptions: { key: OnHideOption, value: string }[];
+    launcherVisibilityOptions: { key: LauncherVisibility, value: string }[];
 
     ngOnInit(): void {
         // When finish load raise block-editor-loaded.
@@ -40,23 +44,23 @@ export class BlockEditorComponent implements OnInit {
     }
 
     ngOnChanges(e: any): void {
-        
+
     }
 
     initOptionsLists() {
-        this.onLoadOptions = [  
+        this.onLoadOptions = [
             { key: "None", value: this.translate.instant('None') },
             { key: "Show", value: this.translate.instant('Show') },
             { key: "ShowMessages", value: this.translate.instant('Show Messages') },
             { key: "ShowNewMessages", value: this.translate.instant('Show New Message') }
         ];
 
-        this.onHideOptions = [  
+        this.onHideOptions = [
             { key: "Nothing", value: this.translate.instant('Nothing') },
             { key: "NavigateBack", value: this.translate.instant('Navigate Back') }
         ];
 
-        this.launcherVisibilityOptions = [  
+        this.launcherVisibilityOptions = [
             { key: "Visible", value: this.translate.instant('Visible') },
             { key: "Hidden", value: this.translate.instant('Hidden') }
         ];
@@ -74,7 +78,7 @@ export class BlockEditorComponent implements OnInit {
             }
             case 'IsIdentityVerifictionOn': {
                 this.isIdentityVerifictionOn = !this.isIdentityVerifictionOn
-                document.getElementById('secret_key').setAttribute("disabled", `${!this.isIdentityVerifictionOn}`);
+                this.secretKeyTextBox.disabled = !this.isIdentityVerifictionOn;
                 break
             }
             case 'LauncherVisibility': {
@@ -87,7 +91,7 @@ export class BlockEditorComponent implements OnInit {
             }
             case 'OnHide': {
                 this.onHide = $event
-                break 
+                break
             }
         }
         this.hostEvents.emit({

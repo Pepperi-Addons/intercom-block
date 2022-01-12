@@ -21,11 +21,11 @@ export async function save_secret_key(client: Client, request: Request) {
     }
 }
 
-export async function get_user_hash(client: Client, request: Request)  {
+export async function get_user_data(client: Client, request: Request)  {
     const service = new MyService(client)
 
     if (request.method === 'GET') {
-        return service.getUserHash(request.query)
+        return service.getUserData(request.query)
     }
     else {
         throw new Error(`Method ${request.method} not supported`);
