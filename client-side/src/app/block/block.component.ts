@@ -11,16 +11,15 @@ import { AddonService } from '../addon.service'
 })
 export class BlockComponent implements OnInit {
     @Input() hostObject: any;
-    appID: string;
-    secretKey: string;
-    actionOnHide: OnHideOption;
-    actionOnLoad: OnLoadOption;
+     appID: string;
+    actionOnHide: OnHideOption = "Nothing";
+    actionOnLoad: OnLoadOption = "None";
     launcherVisibility: LauncherVisibility;
 
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(
-         private BlockService: BlockService,
+         private blockService: BlockService,
          private addonService: AddonService,
         // private translate: TranslateService
     ) {
@@ -45,42 +44,40 @@ export class BlockComponent implements OnInit {
     }
 
     ngOnChanges(e: any): void {
-        this.appID = this.hostObject.configuration.AppID;
-        this.actionOnLoad = this.hostObject.configuration.OnLoad;
-        this.actionOnHide = this.hostObject.configuration.OnHide;
-        this.saveSecretKey()
-    }
-
-    async saveSecretKey() {
-        this.secretKey = this.hostObject.configuration.SecretKey;
-        await this.BlockService.saveSecretKey(this.secretKey);
+         if (this.hostObject.configuration) {
+             this.appID = this.hostObject.configuration.AppID;
+             this.actionOnLoad = this.hostObject.configuration.OnLoad;
+             this.actionOnHide = this.hostObject.configuration.OnHide;
+         }
     }
 
     async openChat() {
-        let user = await this.BlockService.getUser();
-        window["Intercom"]('boot', {
-            app_id: this.appID,
-            name: user.FirstName,
-            email:  user.Email,
-            user_hash: this.BlockService.getUserHash(user.Email),
-            hide_default_launcher: this.launcherVisibility == LauncherVisibility.Hidden
-        });
-
-        this.onLoad()
-        this.onHide()
+        if (this.appID) {
+            let user = await this.blockService.getUser(this.appID);
+            window["Intercom"]('boot', {
+                app_id: this.appID,
+                name: user.FirstName,
+                email:  user.Email,
+                user_hash: user.UserHash,
+                hide_default_launcher: this.launcherVisibility == "Hidden"
+            });
+    
+            this.onLoad()
+            this.onHide()
+        }
     }
 
     onLoad() {
         switch (this.actionOnLoad) {
-            case OnLoadOption.Show: {
+            case "Show": {
                 window['Intercom']('show');
                 break
             }
-            case OnLoadOption.ShowMessages: {
+            case "ShowMessages": {
                 window['Intercom']('showMessages');
                 break
             }
-            case OnLoadOption.ShowNewMessages: {
+            case "ShowNewMessages": {
                 window['Intercom']('showNewMessages');
                 break
             }
@@ -89,7 +86,7 @@ export class BlockComponent implements OnInit {
 
     onHide() {
         switch (this.actionOnHide) {
-            case OnHideOption.NavigateBack: {
+            case "NavigateBack": {
                 window['Intercom']('onHide', () => {
                     const event = new CustomEvent('emit-event', {
                         detail: {

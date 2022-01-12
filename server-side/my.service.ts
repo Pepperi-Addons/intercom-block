@@ -1,8 +1,7 @@
 import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
-import { DUMMY_SECRET_KEY, BLOCK_CPI_META_DATA_TABLE_NAME } from '../shared/entities';
+import { DUMMY_SECRET_KEY, BLOCK_META_DATA_TABLE_NAME } from '../shared/entities';
 import * as encryption from '../shared/encryption-service'
-import * as CryptoJS from 'crypto-js'
 
 class MyService {
 
@@ -42,29 +41,37 @@ class MyService {
     // in case the object have a dummy secret key, we need to take care and don't save it.
     // so when we have a dummy secret key, we remove it from the object, and the upsert to ADAL will not change the current secret key
     async handleSecretKey(data: any){
-        const currentDataBlock  = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(objs => objs[0])
+        if (data.appID) {
+            let currentDataBlock;
+            try{
+                currentDataBlock = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(data.appID)
+            }
+            catch {
+                currentDataBlock = {};
+            }
         
-        if (data.newSecretKey == DUMMY_SECRET_KEY) {
-            if (currentDataBlock.secretKey.length <= 0) {
-                throw new Error(`Secret key can't be ${data.newSecretKey}`);              
+            if (data.newSecretKey == DUMMY_SECRET_KEY) {
+                if (currentDataBlock.SecretKey && currentDataBlock.SecretKey.length <= 0) {
+                    throw new Error(`Secret key can't be ${data.newSecretKey}`);              
+                }
+            }
+            else if (data.newSecretKey && data.newSecretKey.length > 0 ) { // real secret key
+                let enctyptedSecretKey = encryption.encryptSecretKey(data.newSecretKey, this.addonSecretKey)
+                currentDataBlock.Key = data.appID;
+                currentDataBlock.SecretKey = enctyptedSecretKey;            
+                await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).upsert(currentDataBlock);
             }
         }
-        else if (data.newSecretKey.length > 0 ) { // real secret key
-            let enctyptedSecretKey = encryption.encryptSecretKey(data.newSecretKey, this.addonSecretKey)
-            currentDataBlock.secretKey = enctyptedSecretKey;            
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).upsert(currentDataBlock);
+        else {
+            throw new Error(`appID is required`);
         }
     }
 
-    async HMAC(key, email){
-        return await CryptoJS.HmacSHA256(key, email)
-      }
-
       async getUserHash(query) {
-          const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(objs => objs[0]);
-          if (data.secretKey) {
-            let secretKey = await encryption.decryptSecretKey(data.secretKey, this.addonSecretKey)
-            return await this.HMAC(secretKey, query.Email)
+          const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.AppId);
+          if (data.SecretKey) {
+            let secretKey = await encryption.decryptSecretKey(data.SecretKey, this.addonSecretKey)
+            return await encryption.HMAC(secretKey, query.Email)
           }
           throw new Error(`secretKey does not exist`);
       }

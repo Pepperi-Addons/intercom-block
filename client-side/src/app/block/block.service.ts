@@ -14,16 +14,22 @@ export class BlockService {
           
     }
 
-    async saveSecretKey(secretKey) {
-        return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/save_secret_key`, secretKey).toPromise();
+    async saveSecretKey(appId: string, secretKey: string) {
+        const obj = {
+            "appID": appId,
+            "newSecretKey": secretKey
+        };
+        return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/save_secret_key`, obj).toPromise();
     }
 
-    async getUserHash(email: string) {
-        let url = `/addons/api/${this.addonService.addonUUID}/api/get_user_hash?Email=${email}`
-        return this.addonService.pepGet(encodeURI(url)).toPromise();
+    async getUserHash(email: string, appId) {
+        let url = `/addons/api/${this.addonService.addonUUID}/api/get_user_hash?Email=${email}&AppId=${appId}`
+        return await this.addonService.pepGet(encodeURI(url)).toPromise();
     }
 
-    async getUser() {
-        return await this.addonService.getUser();
+    async getUser(appId) {
+        let user = await this.addonService.getUser();
+        let userHash = await this.getUserHash(user.Email, appId)
+        return { "FirstName": user.FirstName, "Email": user.Email, "UserHash": userHash}
     }
 }

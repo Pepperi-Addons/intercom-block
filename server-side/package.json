@@ -25,12 +25,12 @@
         "rollup": "^2.10.9",
         "rollup-plugin-typescript2": "^0.27.1",
         "ts-node": "^8.10.1",
+        "@types/crypto-js": "^4.1.0",
         "typescript": "~3.8.0"
     },
     "dependencies": {
         "@pepperi-addons/debug-server": "*",
         "@pepperi-addons/papi-sdk": "*",
-        "@types/crypto-js": "^4.1.0",
         "crypto-js": "^4.1.1"
     }
 }

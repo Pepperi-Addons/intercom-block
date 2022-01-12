@@ -3,7 +3,7 @@ import jwt from 'jwt-decode';
 import { PapiClient } from '@pepperi-addons/papi-sdk';
 import { Injectable } from '@angular/core';
 
-import {PepHttpService, PepDataConvertorService, PepSessionService} from '@pepperi-addons/ngx-lib';
+import {PepHttpService, PepSessionService} from '@pepperi-addons/ngx-lib';
 
 
 @Injectable({ providedIn: 'root' })
@@ -25,7 +25,6 @@ export class AddonService {
 
     constructor(
         public session:  PepSessionService
-        ,public pepperiDataConverter: PepDataConvertorService
         ,private pepHttp: PepHttpService
     ) {
         const accessToken = this.session.getIdpToken();
