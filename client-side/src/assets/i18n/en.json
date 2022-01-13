@@ -1,3 +1,9 @@
 {
-    "Block_Title": "Block title"
+    "Block_Title": "Block title",
+    "App_ID_Textbox_Title": "App ID",
+    "Secret_Key_Textbox_Title": "Secret Key",
+    "Identity_Verifiction_Checkbox_Title": "Identity_Verifiction",
+    "Launcher_Visibility_Title": "Launcher Visibility",
+    "On_Load_Title": "On Load",
+    "On_Hide_Title": "On Hide"
 }

@@ -10,3 +10,34 @@ export async function foo(client: Client, request: Request) {
     return res
 };
 
+export async function save_secret_key(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'POST') {
+        return service.handleSecretKey(request.body)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+
+export async function get_user_data(client: Client, request: Request)  {
+    const service = new MyService(client)
+
+    if (request.method === 'GET') {
+        return service.getUserData(request.query)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+export async function is_secret_key_exist(client: Client, request: Request)  {
+    const service = new MyService(client)
+
+    if (request.method === 'GET') {
+        return service.isSecretKeyExist(request.query)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}

@@ -2,7 +2,10 @@ import { TranslateLoader, TranslateModule, TranslateService, TranslateStore } fr
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { PepAddonService, PepFileService } from '@pepperi-addons/ngx-lib';
+import { PepAddonService, PepFileService, PepTextboxField } from '@pepperi-addons/ngx-lib';
+import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
+import { PepCheckboxModule } from '@pepperi-addons/ngx-lib/checkbox';
+import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
 
 import { BlockEditorComponent } from '.';
 
@@ -12,6 +15,9 @@ import { config } from '../addon.config';
     declarations: [BlockEditorComponent],
     imports: [
         CommonModule,
+        PepTextboxModule,
+        PepCheckboxModule,
+        PepSelectModule,
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
