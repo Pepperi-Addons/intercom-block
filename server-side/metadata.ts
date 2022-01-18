@@ -7,6 +7,6 @@ export const BlockDataScheme: AddonDataScheme = {
 }
 
 export const BlockCPIDataScheme: AddonDataScheme = {
-    Name: BLOCK_META_DATA_TABLE_NAME,
+    Name: BLOCK_CPI_META_DATA_TABLE_NAME,
     Type: "cpi_meta_data",
 }
