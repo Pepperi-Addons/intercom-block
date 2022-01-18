@@ -21,7 +21,8 @@
 		"crypto-browserify": "^3.11.0",
 		"crypto-js": "^4.1.1",
 		"cryptr": "^6.0.2",
-		"node-libs-browser": "^2.2.1"
+		"node-libs-browser": "^2.2.1",
+		"node-modules": "^1.0.1"
 	},
 	"devDependencies": {
 		"@types/node": "^17.0.8"

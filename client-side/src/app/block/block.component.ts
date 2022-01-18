@@ -56,14 +56,19 @@ export class BlockComponent implements OnInit {
 
     async openChat() {
         let user = await this.blockService.getUser(this.uuid);
-        window["Intercom"]('boot', {
+        let settings = {
             app_id: this.appID,
             name: user.FirstName,
             email: user.Email,
-            user_hash: user.UserHash,
-            hide_default_launcher: this.launcherVisibility == "Hidden"
-        });
-
+        }
+        if(user.UserHash) {
+            settings['user_hash'] = user.UserHash;
+        }
+        if (this.launcherVisibility == "Hidden") {
+            settings['hide_default_launcher'] = true
+        }
+        window["Intercom"]('boot', settings);
+        
         this.onLoad()
         this.onHide()
     }

@@ -1,6 +1,6 @@
 import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
-import { DUMMY_SECRET_KEY, BLOCK_META_DATA_TABLE_NAME } from '../shared/entities';
+import { DUMMY_SECRET_KEY, BLOCK_META_DATA_TABLE_NAME, BLOCK_CPI_META_DATA_TABLE_NAME, Profile } from '../shared/entities';
 import * as encryption from '../shared/encryption-service'
 
 class MyService {
@@ -96,6 +96,69 @@ class MyService {
         }
         catch {
             return false;
+        }
+    }
+
+    // Block-Settings functions
+
+    async getChatCustomizationList() {
+        let profiles: Profile[] = [];
+        const dataViews = await this.papiClient.get("/meta_data/data_views?where=Context.Name='UserHomePageChat'");
+        for (let dataView of dataViews) {
+            let field = dataView.Fields[0];
+            if (field) {
+                let pageKey = field.FieldID.substring(3)
+                let profile = { 'ProfileName': dataView.Context.Profile.Name, 'ProfileID': dataView.Context.Profile.InternalID, 'PageName': dataView.Fields[0]?.Title, 'PageKey': pageKey};
+                profiles.push(profile);
+            }
+        }
+        return profiles;
+    }
+
+    async upsertChatCustomization(body) {
+        if (body) {
+            let profile = 
+                {
+                    "Type": "Menu",
+                    "Hidden": body.Hidden,
+                    "Context": {
+                        "Name": "UserHomePageChat",
+                        "ScreenSize": "Tablet",
+                        "Profile": {
+                            "InternalID": body.ProfileID,
+                            "Name": body.ProfileName
+                        }
+                    },
+                    "Fields": [
+                        {
+                            "FieldID": "PG_" + body.PageKey,
+                            "Title": body.PageName
+                        }
+                    ]
+                }
+          return await this.papiClient.post("/meta_data/data_views", profile);
+        }
+        else {
+            throw new Error(`Profile data is required`);
+        }
+
+    }
+
+    async deleteChatCustomization(body) {
+        if (body) {
+            body.map(obj => {
+                obj.Hidden = true;
+                this.upsertChatCustomization(obj);
+            });
+        }
+        else {
+            throw new Error(`Profile data is required`);
+        }
+    }
+
+    async updateCPIData(body) {
+        if (body.IsOnline) {
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).upsert({ IsOnline: body.IsOnline });
         }
     }
 }

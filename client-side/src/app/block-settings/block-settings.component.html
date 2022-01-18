@@ -1,0 +1,38 @@
+<pep-page-layout>
+  <ng-container pep-main-area>
+      <pep-top-bar [title]="" [inline]="false">
+        <div header-start-content>
+          <p class="configuration-note">{{'Home_Page_Chat_Configuration_Note' | translate}} </p>
+        </div>
+        <div  header-end-content>
+          <pep-button class="enable-button" pep-spacing-element [value]="onlineAPIButtonTitle" [sizeType]="'sm'" [styleType]="'strong'" (buttonClick)="onOnlineEndpointButtonClicked()">
+          </pep-button>
+        </div>
+      </pep-top-bar>
+
+      <div class="" *ngIf="isOnlineEnabled">
+        <div class="third-party-configuration">
+          <p>
+              {{"}}
+          </p>  
+        </div>
+        <div class="chat-notificaton">
+
+        </div>
+      </div>
+
+      <div class="profiles-generic-list">
+        <pep-generic-list 
+        [title] = ""
+        [allowMultipleSelection]="true"  
+        [dataSource]="listDataSource" 
+        [inline]="true"
+        [noDataMessage]= noDataMessage
+        [showSearch]="false">
+        <div right-buttons>
+          <pep-button [sizeType]="'sm'" [classNames]="'pep-spacing-element'" iconName="number_plus" [styleType]="'strong'" (buttonClick)="openProfileForm(1)"></pep-button>
+        </div>
+      </pep-generic-list>
+      </div>
+  </ng-container>
+</pep-page-layout>

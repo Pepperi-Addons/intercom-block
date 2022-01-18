@@ -21,7 +21,7 @@ export async function save_secret_key(client: Client, request: Request) {
     }
 }
 
-export async function get_user_data(client: Client, request: Request)  {
+export async function get_user_data(client: Client, request: Request) {
     const service = new MyService(client)
 
     if (request.method === 'GET') {
@@ -31,11 +31,56 @@ export async function get_user_data(client: Client, request: Request)  {
         throw new Error(`Method ${request.method} not supported`);
     }
 }
-export async function is_secret_key_exist(client: Client, request: Request)  {
+export async function is_secret_key_exist(client: Client, request: Request) {
     const service = new MyService(client)
 
     if (request.method === 'GET') {
         return service.isSecretKeyExist(request.query)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+
+// Block-Setting functions
+export async function get_chat_customization_list(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'GET') {
+        return service.getChatCustomizationList()
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+
+export async function upsert_chat_customization(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'POST') {
+        return service.upsertChatCustomization(request.body)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+
+export async function delete_chat_customization(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'POST') {
+        return service.deleteChatCustomization(request.body)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+
+export async function update_cpi_table(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'POST') {
+        return service.updateCPIData(request.body)
     }
     else {
         throw new Error(`Method ${request.method} not supported`);

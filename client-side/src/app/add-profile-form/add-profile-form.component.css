@@ -1,0 +1,25 @@
+.dialog {
+    background: rgb(255, 255, 255);
+    border-radius: 4px;
+    width: 310px;
+  }
+
+  .close_button {
+      display: inline-block;
+      margin-left: 5px;
+  }
+
+  .title {
+      display: inline-block;
+  }
+
+  .pepperi-button {
+    margin-left: 5px;
+  }
+  
+  .pepperi-border-bottom {
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
+  
+  

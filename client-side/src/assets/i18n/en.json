@@ -1,9 +1,25 @@
 {
     "Block_Title": "Block title",
+    "Title_Addon": "Intercom Online Chat",
     "App_ID_Textbox_Title": "App ID",
     "Secret_Key_Textbox_Title": "Secret Key",
     "Identity_Verifiction_Checkbox_Title": "Identity_Verifiction",
     "Launcher_Visibility_Title": "Launcher Visibility",
     "On_Load_Title": "On Load",
-    "On_Hide_Title": "On Hide"
+    "On_Hide_Title": "On Hide",
+    "Home_Page_Chat_Configuration_Note": "Enable/Disable receiving unread message count updates from Intercom in mobile app", 
+    "Enable": "Enable",
+    "Disable": "Disable",
+    "Add_Button": "Add New Profile",
+    "Add_Profile": "Add Profile",
+    "Choose_Profile": "Choose Profile",
+    "Choose_Page": "Choose Page",
+    "Disable_Form_Title": "Disable Online Updates",
+    "Access_Token_note": "To access the Intercom API, you’ll need an access token. You can find your Access Token in the Configure > Authentication section in your app within the Developer Hub.",
+    "Yes_Button_Text": "Yes",
+    "Are_You_Sure_First_Line": "Are you sure you want to disable online updates? This will",
+    "Are_You_Sure_second_Line": "remove unread message indication in the mobile app!",
+    "Before_Disable_Online_Message": "Are you sure you want to remove the configuration?"
+
+
 }

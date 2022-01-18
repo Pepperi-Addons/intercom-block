@@ -1,0 +1,25 @@
+.configuration-note {
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.enable-button {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.profiles-generic-list {
+    margin-top: 20px;
+    margin-right: 1fr;
+}
+
+.header-start-content{
+    margin-top: 20px;
+    display: flex;
+
+}
+
+.right-buttons {
+    display: flex;
+    margin-right: 5px;
+}
