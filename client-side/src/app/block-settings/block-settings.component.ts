@@ -6,6 +6,9 @@ import { ActivatedRoute } from '@angular/router';
 import { AddonService } from '../addon.service';
 import { AddProfileFormComponent } from '../add-profile-form/add-profile-form.component';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
+import { ChangeDetectorRef } from '@angular/core';
+import { DUMMY_SECRET_KEY } from '../../../../shared/entities';
+import { PepColorService } from '@pepperi-addons/ngx-lib';
 
 @Component({
   selector: 'app-block-settings',
@@ -15,24 +18,43 @@ import { MessageDialogComponent } from '../message-dialog/message-dialog.compone
 export class BlockSettingsComponent implements OnInit {
   @ViewChild(GenericListComponent) genericList: GenericListComponent;
 
-  isOnlineEnabled: boolean = false;
-  onlineAPIButtonTitle: string = this.translate.instant("Enable");
+  noDataMessage: string;
+  presentedProfiles = [];
+  onlineAPIButtonTitle: string;
+  chatColor: string;
+  token: string = '';
+  onlineEndpointObj: {
+    "Enable": boolean,
+    "Token": string,
+    "ChatColor": string
+  };
 
   constructor(private translate: TranslateService,
     private addonService: AddonService,
     private blockSettingsService: BlockSettingsService,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private ref: ChangeDetectorRef,
+    private colorService: PepColorService) {
     this.addonService.addonUUID = this.route.snapshot.params.addon_uuid;
   }
 
   ngOnInit() {
+    this.blockSettingsService.getOnlineEndpoint().then((endpoint) => {
+      this.onlineEndpointObj = endpoint;
+      this.chatColor = this.colorService.convertHslToStringHsl(this.colorService.hex2hsl(this.onlineEndpointObj.ChatColor));
+      if (this.onlineEndpointObj.Token && this.onlineEndpointObj.Token != '') {
+        this.token = DUMMY_SECRET_KEY;
+      }
+      this.onlineAPIButtonTitle = this.onlineEndpointObj.Enable == true ? this.translate.instant("Disable") : this.translate.instant("Enable");
+      this.ref.detectChanges();
+    });
   }
-
-  noDataMessage: string;
 
   listDataSource: GenericListDataSource = {
     getList: async (state) => {
-      return await this.blockSettingsService.getChatCustomizationList();
+      let chatCustomizationList = await this.blockSettingsService.getChatCustomizationList();
+      this.presentedProfiles = chatCustomizationList.map(customization => customization.ProfileID);
+      return chatCustomizationList;
     },
 
     getDataView: async () => {
@@ -89,11 +111,11 @@ export class BlockSettingsComponent implements OnInit {
           title: this.translate.instant("Delete"),
           handler: async (objs) => {
             let message = this.translate.instant("Before_Disable_Online_Message");
-            let dialogData =  { 
+            let dialogData = {
               "Message": message,
               "Title": "",
               "ButtonText": this.translate.instant("Yes"),
-              "DialogType": 'BeforeRemove' 
+              "DialogType": 'BeforeRemove'
             }
             return this.blockSettingsService.openDialog("", MessageDialogComponent, [], { data: dialogData }, (data) => {
               if (data) {
@@ -111,26 +133,24 @@ export class BlockSettingsComponent implements OnInit {
   }
 
   onOnlineEndpointButtonClicked() {
-    if (this.isOnlineEnabled == true) {
+    if (this.onlineEndpointObj.Enable == true) {
       let message = this.translate.instant("Are_You_Sure_First_Line") + '\n' + this.translate.instant("Are_You_Sure_Second_Line");
-      let dialogData = { 
+      let dialogData = {
         "Message": message,
         "Title": this.translate.instant("Disable_Form_Title"),
-        "ButtonText":  this.translate.instant("Disable"),
-        "DialogType": 'BeforeDisableOnline'  
+        "ButtonText": this.translate.instant("Disable"),
+        "DialogType": 'BeforeDisableOnline'
       }
       return this.blockSettingsService.openDialog("", MessageDialogComponent, [], { data: dialogData }, (data) => {
         if (data) {
-          this.isOnlineEnabled = false;
-          this.blockSettingsService.updateOnlineEndPoint(this.isOnlineEnabled);
-          this.onlineAPIButtonTitle = this.translate.instant("Enable");
+          this.onlineEndpointObj.Enable = false;
+          this.blockSettingsService.updateOnlineEndPoint(this.onlineEndpointObj);
         }
       });
     }
     else {
-      this.isOnlineEnabled = true;
-      this.blockSettingsService.updateOnlineEndPoint(this.isOnlineEnabled);
-      this.onlineAPIButtonTitle = this.translate.instant("Disable");
+      this.onlineEndpointObj.Enable = true;
+      this.blockSettingsService.updateOnlineEndPoint(this.onlineEndpointObj);
     }
   }
 
@@ -153,13 +173,34 @@ export class BlockSettingsComponent implements OnInit {
     let pages = await this.blockSettingsService.getPages();
     let selectedProfile = { "Name": profileData?.ProfileName, "ID": profileData?.ProfileID };
     let selectedPage = { "Name": profileData?.PageName, "ID": profileData?.PageKey };
-    let dialogData  = { 
+    let dialogData = {
       "Profiles": profiles,
       "Pages": pages,
       "FormMode": profileFormMode,
       "SelectedProfile": selectedProfile,
-      "SelectedPage": selectedPage 
-    } 
-    return this.blockSettingsService.openDialog(this.translate.instant("Add Profile"), AddProfileFormComponent, [], { data: dialogData}, callback);
+      "SelectedPage": selectedPage,
+      "PresentedProfiles": this.presentedProfiles
+    }
+    return this.blockSettingsService.openDialog(this.translate.instant("Add Profile"), AddProfileFormComponent, [], { data: dialogData }, callback);
+  }
+
+  onSaveTokenClicked() {
+    if (this.onlineEndpointObj.Token && this.onlineEndpointObj.Token != "") {
+      this.blockSettingsService.saveToken(this.onlineEndpointObj);
+    }
+  }
+
+  onTestTokenClicked() {
+
+  }
+
+  onSaveColorClicked() {
+    if (this.onlineEndpointObj.ChatColor) {
+      this.blockSettingsService.updateOnlineEndPoint(this.onlineEndpointObj);
+    }
+  }
+
+  async onColorChanged($event) {
+    this.onlineEndpointObj.ChatColor = this.colorService.hsl2hex(this.colorService.hslString2hsl($event));
   }
 }

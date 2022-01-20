@@ -9,6 +9,7 @@ import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
 import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
+import { PepColorModule } from '@pepperi-addons/ngx-lib/color';
 
 import { BlockSettingsComponent } from './block-settings.component';
 
@@ -26,6 +27,7 @@ import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
         PepGenericListModule,
         PepPageLayoutModule,
         PepTopBarModule,
+        PepColorModule,
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,

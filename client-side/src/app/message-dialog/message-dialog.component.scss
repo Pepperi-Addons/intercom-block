@@ -3,11 +3,6 @@ p {
     text-align: center;
 }
 
-.pepperi-border-bottom {
-    margin-top: 5px;
-    margin-bottom: 10px;
-  }
-
   .close_button {
       display: inline-block;
       margin-left: 5px;
@@ -16,4 +11,9 @@ p {
 
   .title {
       display: inline-block;
+  }
+
+  .header {
+      display: flex;
+      justify-content: space-between;
   }

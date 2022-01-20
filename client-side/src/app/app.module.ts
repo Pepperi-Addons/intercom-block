@@ -17,6 +17,7 @@ import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-transla
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
 import { MatDialogModule } from '@angular/material/dialog';
+import { PepColorModule } from '@pepperi-addons/ngx-lib/color';
 
 export function createTranslateLoader(http: HttpClient, fileService: PepFileService, addonService: PepAddonService) {
     const translationsPath: string = fileService.getAssetsTranslationsPath();
@@ -56,6 +57,7 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
         PepButtonModule,
         HttpClientModule,
         MatDialogModule,
+        PepColorModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,

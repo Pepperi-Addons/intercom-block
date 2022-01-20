@@ -2,6 +2,8 @@ import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import { DUMMY_SECRET_KEY, BLOCK_META_DATA_TABLE_NAME, BLOCK_CPI_META_DATA_TABLE_NAME, Profile } from '../shared/entities';
 import * as encryption from '../shared/encryption-service'
+import * as https from "https"
+import { v4 as uuid } from 'uuid';
 
 class MyService {
 
@@ -108,7 +110,7 @@ class MyService {
             let field = dataView.Fields[0];
             if (field) {
                 let pageKey = field.FieldID.substring(3)
-                let profile = { 'ProfileName': dataView.Context.Profile.Name, 'ProfileID': dataView.Context.Profile.InternalID, 'PageName': dataView.Fields[0]?.Title, 'PageKey': pageKey};
+                let profile = { 'ProfileName': dataView.Context.Profile.Name, 'ProfileID': dataView.Context.Profile.InternalID, 'PageName': dataView.Fields[0]?.Title, 'PageKey': pageKey };
                 profiles.push(profile);
             }
         }
@@ -117,26 +119,26 @@ class MyService {
 
     async upsertChatCustomization(body) {
         if (body) {
-            let profile = 
-                {
-                    "Type": "Menu",
-                    "Hidden": body.Hidden,
-                    "Context": {
-                        "Name": "UserHomePageChat",
-                        "ScreenSize": "Tablet",
-                        "Profile": {
-                            "InternalID": body.ProfileID,
-                            "Name": body.ProfileName
-                        }
-                    },
-                    "Fields": [
-                        {
-                            "FieldID": "PG_" + body.PageKey,
-                            "Title": body.PageName
-                        }
-                    ]
-                }
-          return await this.papiClient.post("/meta_data/data_views", profile);
+            let profile =
+            {
+                "Type": "Menu",
+                "Hidden": body.Hidden,
+                "Context": {
+                    "Name": "UserHomePageChat",
+                    "ScreenSize": "Tablet",
+                    "Profile": {
+                        "InternalID": body.ProfileID,
+                        "Name": body.ProfileName
+                    }
+                },
+                "Fields": [
+                    {
+                        "FieldID": "PG_" + body.PageKey,
+                        "Title": body.PageName
+                    }
+                ]
+            }
+            return await this.papiClient.post("/meta_data/data_views", profile);
         }
         else {
             throw new Error(`Profile data is required`);
@@ -157,9 +159,164 @@ class MyService {
     }
 
     async updateCPIData(body) {
-        if (body.IsOnline) {
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).upsert({ IsOnline: body.IsOnline });
+        if (body) {
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).upsert(body);
         }
+    }
+
+    async getCPIData() {
+        let onlineEndpointObj = {
+            "Enable": false,
+            "Token": "",
+            "ChatColor": "rgba(204, 204, 204, 1)",
+            "Key": uuid()
+        };
+        await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(data => {
+            if (data[0]) {
+                onlineEndpointObj = data[0] as any;
+            }
+        });
+
+        return onlineEndpointObj;
+    }
+
+    async saveToken(body) {
+        if (body && body.Token) {
+            let currentToken = {};
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(data => {
+                if (data[0].Token) {
+                    currentToken = data[0].Token;
+                }
+            });
+
+            if (body.Token == DUMMY_SECRET_KEY) {
+                if (currentToken && currentToken <= 0) {
+                    throw new Error(`Token can't be ${currentToken}`);
+                }
+            }
+            else if (body.Token && body.Token.length > 0) { // real Token
+                let enctyptedToken = encryption.encryptSecretKey(body.Token, this.addonSecretKey);
+                body.Token = enctyptedToken;
+                this.updateCPIData(body);
+            }
+            else {
+                body.Token = "";
+                this.updateCPIData(body);
+            }
+        }
+        else {
+            throw new Error(`Token is required`);
+        }
+    }
+
+    // CPI endpoints 
+    async getStatus(query) {
+        const unreadMessagesCount = await this.getUnreadMessagesCount(query);
+        return {
+            "userEmail": query.Email,
+            "unreadCount": unreadMessagesCount,
+            "someOtherProperty": "some other value"
+        }
+    }
+
+    async getUnreadMessagesCount(query) {
+        if (query && query.Email) {
+            let contactMail = {
+                "query": {
+                    "field": "email",
+                    "operator": "=",
+                    "value": query.Email
+                }
+            }
+            let contacts = JSON.parse(await this.httpsPost("https://api.intercom.io/contacts/search", contactMail) as any);
+            if (contacts && contacts.data[0]) {
+                let conversationQuery = {
+                    "query": {
+                        "operator": "AND",
+                        "value": [
+                            {
+                                "field": "read",
+                                "operator": "=",
+                                "value": false
+                            },
+                            {
+                                "field": "contact_ids",
+                                "operator": "=",
+                                "value": contacts.data[0].id
+                            }
+                        ]
+                    }
+                }
+
+                let conversations = JSON.parse(await this.httpsPost("https://api.intercom.io/conversations/search", conversationQuery) as any)
+                if (conversations) {
+                    return conversations.total_count;
+                }
+                else {
+                    throw new Error(`Error in intercom.io/conversations request`);
+                }
+            }
+            else {
+                throw new Error(`Error in intercom.io/contacts request`);
+            }
+        }
+        else {
+            throw new Error(`Email is required`);
+
+        }
+
+    }
+
+    // https POST request [using https module]
+    async httpsPost(url, data) {
+        const dataString = JSON.stringify(data)
+
+        let token = "";
+        await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(data => {
+            if (data[0].Token) {
+                token = encryption.decryptSecretKey(data[0].Token, this.addonSecretKey);
+            }
+        });
+
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Content-Length': dataString.length,
+                'Authorization': 'Bearer ' + token
+
+            },
+            timeout: 5000, // in ms
+        }
+
+        return new Promise((resolve, reject) => {
+            const req = https.request(url, options, (res: any) => {
+                if (res.statusCode < 200 || res.statusCode > 299) {
+                    return reject(new Error(`HTTP status code ${res.statusCode}`))
+                }
+
+                const body: any = []
+                res.on('data', (chunk) => body.push(chunk))
+                res.on('end', () => {
+                    const resString = Buffer.concat(body).toString()
+                    resolve(resString)
+                })
+            })
+
+            req.on('error', (err) => {
+                reject(err)
+            })
+
+            req.on('timeout', () => {
+                req.destroy()
+                reject(new Error('Request time out'))
+            })
+
+            req.write(dataString)
+            req.end()
+        })
+
     }
 }
 

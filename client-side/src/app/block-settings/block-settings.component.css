@@ -23,3 +23,40 @@
     display: flex;
     margin-right: 5px;
 }
+
+.third-party-configuration {
+    margin-top: 10px;
+}
+
+.access-token-textbox {
+    display: inline-block;
+    margin-block: inherit;
+    margin-top: 0px;
+    align-self: center;
+    align-content: center;
+}
+
+.save-token-button {
+    display: inline-block;
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+.save-color-button {
+    display: inline-block;
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+.color-picker {
+    display: inline-block;
+    width: 200px;
+}
+
+.pepperi-border-bottom {
+    margin-top: 15px;
+}
+
+.configuration-note {
+    margin-left: 5px;
+}

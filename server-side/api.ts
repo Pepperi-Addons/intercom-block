@@ -1,20 +1,14 @@
 import MyService from './my.service'
 import { Client, Request } from '@pepperi-addons/debug-server'
 
-// add functions here
-// this function will run on the 'api/foo' endpoint
-// the real function is runnning on another typescript file
-export async function foo(client: Client, request: Request) {
-    const service = new MyService(client)
-    const res = await service.getAddons()
-    return res
-};
-
-export async function save_secret_key(client: Client, request: Request) {
+export async function secret_key(client: Client, request: Request) {
     const service = new MyService(client)
 
     if (request.method === 'POST') {
         return service.handleSecretKey(request.body)
+    }
+    if (request.method === 'GET') {
+        return service.isSecretKeyExist(request.query)
     }
     else {
         throw new Error(`Method ${request.method} not supported`);
@@ -31,32 +25,14 @@ export async function get_user_data(client: Client, request: Request) {
         throw new Error(`Method ${request.method} not supported`);
     }
 }
-export async function is_secret_key_exist(client: Client, request: Request) {
-    const service = new MyService(client)
-
-    if (request.method === 'GET') {
-        return service.isSecretKeyExist(request.query)
-    }
-    else {
-        throw new Error(`Method ${request.method} not supported`);
-    }
-}
 
 // Block-Setting functions
-export async function get_chat_customization_list(client: Client, request: Request) {
+export async function chat_customization(client: Client, request: Request) {
     const service = new MyService(client)
 
     if (request.method === 'GET') {
         return service.getChatCustomizationList()
     }
-    else {
-        throw new Error(`Method ${request.method} not supported`);
-    }
-}
-
-export async function upsert_chat_customization(client: Client, request: Request) {
-    const service = new MyService(client)
-
     if (request.method === 'POST') {
         return service.upsertChatCustomization(request.body)
     }
@@ -76,11 +52,38 @@ export async function delete_chat_customization(client: Client, request: Request
     }
 }
 
-export async function update_cpi_table(client: Client, request: Request) {
+export async function cpi_table_data(client: Client, request: Request) {
     const service = new MyService(client)
 
     if (request.method === 'POST') {
         return service.updateCPIData(request.body)
+    }
+    else if (request.method === 'GET'){
+        return service.getCPIData()
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`); 
+    }
+}
+
+export async function save_Token(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'POST') {
+        return service.saveToken(request.body)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+
+// CPI endpoints 
+
+export async function get_status(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'GET') {
+        return service.getStatus(request.query)
     }
     else {
         throw new Error(`Method ${request.method} not supported`);

@@ -22,4 +22,8 @@
     margin-bottom: 10px;
   }
   
+  .header {
+    display: flex;
+    justify-content: space-between;
+}
   

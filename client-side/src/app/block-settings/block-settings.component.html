@@ -5,25 +5,33 @@
           <p class="configuration-note">{{'Home_Page_Chat_Configuration_Note' | translate}} </p>
         </div>
         <div  header-end-content>
-          <pep-button class="enable-button" pep-spacing-element [value]="onlineAPIButtonTitle" [sizeType]="'sm'" [styleType]="'strong'" (buttonClick)="onOnlineEndpointButtonClicked()">
+          <pep-button class="enable-button" pep-spacing-element [(value)]="onlineAPIButtonTitle" [sizeType]="'sm'" [styleType]="'strong'" (buttonClick)="onOnlineEndpointButtonClicked()">
           </pep-button>
         </div>
       </pep-top-bar>
 
-      <div class="" *ngIf="isOnlineEnabled">
-        <div class="third-party-configuration">
+      <div class="" pepperi-border-bottom *ngIf="onlineEndpointObj.Enable">
+        <div class="third-party-configuration pepperi-border-bottom">
           <p>
-              {{"}}
-          </p>  
+              {{'Access_Token_note' | translate}}
+          </p>
+            <pep-textbox class="access-token-textbox" [label]="'Access_Token_Title' | translate" [(value)]="token"></pep-textbox>
+            <pep-button class="save-token-button" pep-spacing-element [value]="'Save' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="onSaveTokenClicked()"></pep-button>
+            <pep-button class="save-token-button" pep-spacing-element [value]="'Test' | translate" [sizeType]="'md'" [styleType]="'weak'" (buttonClick)="onTestTokenClicked()"></pep-button>
         </div>
-        <div class="chat-notificaton">
-
+        <div class="chat-notificaton pepperi-border-bottom">
+          <p>
+            {{'Chat_Color_Picker_Note' | translate}}
+          </p>
+          <pep-color class="color-picker"   [(value)]="chatColor"[disabled]="false" xAlignment="left" type="any" [showTitle]="true" [showAAComplient]="true" (valueChange)="onColorChanged($event)"></pep-color>
+          <pep-button class="save-color-button" pep-spacing-element [value]="'Save' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="onSaveColorClicked($event)"></pep-button>
         </div>
       </div>
 
       <div class="profiles-generic-list">
+        <p> {{'Block_Settings_Table_Note' | translate}} </p>
         <pep-generic-list 
-        [title] = ""
+        [title] = " 'Block_Settings_Table_Title' | translate"
         [allowMultipleSelection]="true"  
         [dataSource]="listDataSource" 
         [inline]="true"

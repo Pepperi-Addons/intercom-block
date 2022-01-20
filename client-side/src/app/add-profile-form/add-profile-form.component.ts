@@ -22,7 +22,6 @@ export class AddProfileFormComponent implements OnInit {
     private layoutService: PepLayoutService,
     private translate: TranslateService,
     private dialogRef: MatDialogRef<AddProfileFormComponent>,
-    private blockSettingsService: BlockSettingsService,
     @Inject(MAT_DIALOG_DATA) public incoming: any) {
     this.layoutService.onResize$.subscribe(size => {
       this.screenSize = size;
@@ -40,6 +39,9 @@ export class AddProfileFormComponent implements OnInit {
     this.profilesOptions = this.dialogData.Profiles.map(profile => {
       return { key: profile.InternalID, value: profile.Name };
     });
+    //Profile list should include only profiles that are not in the table
+    this.profilesOptions = this.profilesOptions.filter(profile => !this.dialogData.PresentedProfiles.includes(profile.key))
+
     //init pages list
     this.pagesOptions = this.dialogData.Pages.map(page => {
       return { key: page.Key, value: page.Name };

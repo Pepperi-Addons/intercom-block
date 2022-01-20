@@ -28,23 +28,29 @@ export class BlockSettingsService {
   }
 
   async getChatCustomizationList() {
-    let url = `/addons/api/${this.addonService.addonUUID}/api/get_chat_customization_list`
+    let url = `/addons/api/${this.addonService.addonUUID}/api/chat_customization`
     return await this.addonService.pepGet(encodeURI(url)).toPromise();
   }
 
   async upsertChatCustomization(profile) {
-    return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/upsert_chat_customization`, profile).toPromise();
+    return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/chat_customization`, profile).toPromise();
   }
 
-  async updateOnlineEndPoint(enable) {
-    const obj = {
-      "IsOnline": enable
-    };
-    return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/update_cpi_table`, obj).toPromise();
+  async updateOnlineEndPoint(data) {
+    return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/cpi_table_data`, data).toPromise();
+  }
+
+  async getOnlineEndpoint() {
+    let url = `/addons/api/${this.addonService.addonUUID}/api/cpi_table_data`
+    return await this.addonService.pepGet(encodeURI(url)).toPromise()
   }
 
   async deleteChatCustomization(profilesToDelete) {
     return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/delete_chat_customization`, profilesToDelete).toPromise();
+  }
+
+  async saveToken(data) {
+    return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/save_Token`, data).toPromise();
   }
 
   // Dialog service 
