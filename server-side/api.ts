@@ -66,11 +66,14 @@ export async function cpi_table_data(client: Client, request: Request) {
     }
 }
 
-export async function save_Token(client: Client, request: Request) {
+export async function token(client: Client, request: Request) {
     const service = new MyService(client)
 
     if (request.method === 'POST') {
         return service.saveToken(request.body)
+    }
+    else if (request.method === 'GET') {
+        return service.isTokenExist();
     }
     else {
         throw new Error(`Method ${request.method} not supported`);
@@ -84,6 +87,17 @@ export async function get_status(client: Client, request: Request) {
 
     if (request.method === 'GET') {
         return service.getStatus(request.query)
+    }
+    else {
+        throw new Error(`Method ${request.method} not supported`);
+    }
+}
+
+export async function test_intercom_api(client: Client, request: Request) {
+    const service = new MyService(client)
+
+    if (request.method === 'GET') {
+        return service.testIntercomAPI(request.query)
     }
     else {
         throw new Error(`Method ${request.method} not supported`);

@@ -7,8 +7,9 @@ import { AddonService } from '../addon.service';
 import { AddProfileFormComponent } from '../add-profile-form/add-profile-form.component';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 import { ChangeDetectorRef } from '@angular/core';
-import { DUMMY_SECRET_KEY } from '../../../../shared/entities';
 import { PepColorService } from '@pepperi-addons/ngx-lib';
+import { TestIntercomAPIDialogComponent } from '../test-intercom-api-dialog/test-intercom-api-dialog.component';
+import { DUMMY_SECRET_KEY } from '../../../../shared/entities';
 
 @Component({
   selector: 'app-block-settings',
@@ -17,11 +18,14 @@ import { PepColorService } from '@pepperi-addons/ngx-lib';
 })
 export class BlockSettingsComponent implements OnInit {
   @ViewChild(GenericListComponent) genericList: GenericListComponent;
+  @ViewChild('enableButton') enableButton: any;
 
   noDataMessage: string;
   presentedProfiles = [];
   onlineAPIButtonTitle: string;
+  onlineAPIButtonStyleStateType: string;
   chatColor: string;
+  isLoaded: boolean = false;
   token: string = '';
   onlineEndpointObj: {
     "Enable": boolean,
@@ -39,15 +43,27 @@ export class BlockSettingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.blockSettingsService.getOnlineEndpoint().then((endpoint) => {
-      this.onlineEndpointObj = endpoint;
+    this.getOnlineEndpoint();
+  }
+
+  async getOnlineEndpoint() {
+    this.onlineEndpointObj = await this.blockSettingsService.getOnlineEndpoint();
+
+    if (this.onlineEndpointObj.ChatColor) {
       this.chatColor = this.colorService.convertHslToStringHsl(this.colorService.hex2hsl(this.onlineEndpointObj.ChatColor));
-      if (this.onlineEndpointObj.Token && this.onlineEndpointObj.Token != '') {
-        this.token = DUMMY_SECRET_KEY;
-      }
-      this.onlineAPIButtonTitle = this.onlineEndpointObj.Enable == true ? this.translate.instant("Disable") : this.translate.instant("Enable");
-      this.ref.detectChanges();
-    });
+    }
+    else {
+      this.chatColor = this.colorService.convertHslToStringHsl(this.colorService.hex2hsl("#ccc"))
+    }
+
+    let isTokenExists = await this.blockSettingsService.isTokenExist();
+    if(isTokenExists == true) {
+      this.token = DUMMY_SECRET_KEY;
+    }
+
+    this.setOnlineAPIButtonUI()
+    this.isLoaded = true;
+    this.ref.detectChanges();
   }
 
   listDataSource: GenericListDataSource = {
@@ -110,26 +126,42 @@ export class BlockSettingsComponent implements OnInit {
         actions.push({
           title: this.translate.instant("Delete"),
           handler: async (objs) => {
-            let message = this.translate.instant("Before_Disable_Online_Message");
-            let dialogData = {
-              "Message": message,
-              "Title": "",
-              "ButtonText": this.translate.instant("Yes"),
-              "DialogType": 'BeforeRemove'
-            }
-            return this.blockSettingsService.openDialog("", MessageDialogComponent, [], { data: dialogData }, (data) => {
-              if (data) {
-                this.blockSettingsService.deleteChatCustomization(objs).then(() => {
-                  this.genericList.reload();
-                });
-              }
-            });
+            this.deleteChatConfiguration(objs)
           }
         });
       }
 
       return actions;
     }
+  }
+
+private deleteChatConfiguration(objs) {
+  let message = this.translate.instant("Before_Disable_Online_Message");
+  let dialogData = {
+    "Message": message,
+    "Title": "",
+    "ButtonText": this.translate.instant("Yes"),
+    "DialogType": 'BeforeRemove'
+  }
+  return this.blockSettingsService.openDialog("", MessageDialogComponent, [], { data: dialogData }, (data) => {
+    if (data) {
+      this.blockSettingsService.deleteChatCustomization(objs).then(() => {
+        this.genericList.reload();
+      });
+    }
+  });
+}
+
+  setOnlineAPIButtonUI() {
+    if (this.onlineEndpointObj.Enable == true) {
+      this.onlineAPIButtonTitle = this.translate.instant("Disable");
+      this.onlineAPIButtonStyleStateType = 'caution';
+    }
+    else {
+      this.onlineAPIButtonTitle = this.translate.instant("Enable");
+      this.onlineAPIButtonStyleStateType = 'Success';
+    }
+    this.ref.detectChanges();
   }
 
   onOnlineEndpointButtonClicked() {
@@ -145,12 +177,14 @@ export class BlockSettingsComponent implements OnInit {
         if (data) {
           this.onlineEndpointObj.Enable = false;
           this.blockSettingsService.updateOnlineEndPoint(this.onlineEndpointObj);
+          this.setOnlineAPIButtonUI();
         }
       });
     }
     else {
       this.onlineEndpointObj.Enable = true;
       this.blockSettingsService.updateOnlineEndPoint(this.onlineEndpointObj);
+      this.setOnlineAPIButtonUI();
     }
   }
 
@@ -185,13 +219,22 @@ export class BlockSettingsComponent implements OnInit {
   }
 
   onSaveTokenClicked() {
-    if (this.onlineEndpointObj.Token && this.onlineEndpointObj.Token != "") {
+    if (this.token && this.token != "") {
+      this.onlineEndpointObj.Token = this.token;
       this.blockSettingsService.saveToken(this.onlineEndpointObj);
     }
   }
 
   onTestTokenClicked() {
-
+    let dialogData = {};
+    this.blockSettingsService.openDialog("", TestIntercomAPIDialogComponent, [], { data: dialogData }, (data) => {
+      if (data) {
+        this.onlineEndpointObj.Enable = false;
+        this.onlineAPIButtonTitle = this.translate.instant("Enable");
+        this.enableButton.styleStateType = 'Success';
+        this.blockSettingsService.updateOnlineEndPoint(this.onlineEndpointObj);
+      }
+    });
   }
 
   onSaveColorClicked() {

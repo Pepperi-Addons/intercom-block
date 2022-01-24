@@ -33,7 +33,7 @@ class IntercomCPIManager {
             suppressLogging: true
         })
     }
-    
+
     load() {
         this.subscribe()
     }

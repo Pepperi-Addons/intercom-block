@@ -50,7 +50,21 @@ export class BlockSettingsService {
   }
 
   async saveToken(data) {
-    return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/save_Token`, data).toPromise();
+    return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/token`, data).toPromise();
+  }
+
+  async isTokenExist() {
+    return await this.addonService.pepGet(`/addons/api/${this.addonService.addonUUID}/api/token`).toPromise();
+  }
+
+  async testIntercomAPI(email) {
+    try {
+      let url = `/addons/api/${this.addonService.addonUUID}/api/test_intercom_api?Email=${email}`
+      return await this.addonService.pepGet(encodeURI(url)).toPromise();
+    }
+    catch(err) {
+      return err;
+    }
   }
 
   // Dialog service 

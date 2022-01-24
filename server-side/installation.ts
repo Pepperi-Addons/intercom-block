@@ -39,8 +39,7 @@ export async function downgrade(client: Client, request: Request): Promise<any> 
 
 async function createPageBlockRelation(client: Client): Promise<any> {
     try {
-        // TODO: change to block name (this is the unique relation name and the description that will be on the page builder editor in Blocks section).
-        const blockName = 'SukandaChat';
+        const blockName = 'Intercom Chat';
 
         // TODO: Change to fileName that declared in webpack.config.js
         const filename = 'chat';

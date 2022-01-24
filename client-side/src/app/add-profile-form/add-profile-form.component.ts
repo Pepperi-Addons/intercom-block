@@ -2,7 +2,6 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
 import {TranslateService } from '@ngx-translate/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BlockSettingsService } from '../block-settings/block-settings.service';
 import { ProfileFormMode } from '../../../../shared/entities'
 
 @Component({
@@ -51,13 +50,13 @@ export class AddProfileFormComponent implements OnInit {
   async onValueChanged(element, $event) {
     switch (element) {
       case 'Profile': {
-        let profile = this.profilesOptions.filter(profile => profile.key == $event)
-        this.dialogData.SelectedProfile = {"Name": profile[0].value, "ID": profile[0].key};
+        let profile = this.profilesOptions.find(profile => profile.key == $event)
+        this.dialogData.SelectedProfile = {"Name": profile.value, "ID": profile.key};
         break;
       }
       case 'Page': {
-        let page = this.pagesOptions.filter(page => page.key == $event)
-        this.dialogData.SelectedPage = {"Name": page[0].value, "Key": page[0].key};
+        let page = this.pagesOptions.find(page => page.key == $event);
+        this.dialogData.SelectedPage = {"Name": page.value, "Key": page.key};
         break;
       }
     }

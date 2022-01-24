@@ -15,6 +15,7 @@ import { BlockSettingsComponent } from './block-settings.component';
 
 import { config } from '../addon.config';
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
+import { PepTextareaModule } from '@pepperi-addons/ngx-lib/textarea';
 
 @NgModule({
     declarations: [BlockSettingsComponent],
@@ -28,6 +29,7 @@ import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
         PepPageLayoutModule,
         PepTopBarModule,
         PepColorModule,
+        PepTextareaModule,
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,

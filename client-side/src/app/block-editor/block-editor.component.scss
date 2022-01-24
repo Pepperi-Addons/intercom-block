@@ -1,4 +1,17 @@
-.pep-checkbox {
-    background-color: transparent;
+pep-checkbox{
+    ::ng-deep  .pep-checkbox-container{
+        background: transparent;
+        padding-inline: 0;
+    }
 }
+
+.pepperi-theme {
+    background: transparent;
+}
+
+.notes {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
 

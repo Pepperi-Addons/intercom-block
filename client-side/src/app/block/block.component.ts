@@ -107,4 +107,8 @@ export class BlockComponent implements OnInit {
             }
         }
     }
+
+    ngOnDestroy(): void {
+        window['Intercom']('shutdown');
+    }
 }

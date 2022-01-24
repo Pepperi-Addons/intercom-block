@@ -18,6 +18,9 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
 import { MatDialogModule } from '@angular/material/dialog';
 import { PepColorModule } from '@pepperi-addons/ngx-lib/color';
+import { TestIntercomAPIDialogComponent } from './test-intercom-api-dialog/test-intercom-api-dialog.component'
+import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
+import { PepTextareaModule } from '@pepperi-addons/ngx-lib/textarea';
 
 export function createTranslateLoader(http: HttpClient, fileService: PepFileService, addonService: PepAddonService) {
     const translationsPath: string = fileService.getAssetsTranslationsPath();
@@ -58,6 +61,8 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
         HttpClientModule,
         MatDialogModule,
         PepColorModule,
+        PepTextboxModule,
+        PepTextareaModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
@@ -67,31 +72,32 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
         })
 
     ],
-    declarations: [	
+    declarations: [
         AppComponent,
-      AddProfileFormComponent,
-      MessageDialogComponent
-   ],
+        AddProfileFormComponent,
+        MessageDialogComponent,
+        TestIntercomAPIDialogComponent
+    ],
     providers: [],
     bootstrap: [
         AppComponent
     ]
 })
-export class AppModule { 
+export class AppModule {
     constructor(
         translate: TranslateService
     ) {
 
-      let userLang = 'en';
-      translate.setDefaultLang(userLang);
-      userLang = translate.getBrowserLang().split('-')[0]; // use navigator lang if available
+        let userLang = 'en';
+        translate.setDefaultLang(userLang);
+        userLang = translate.getBrowserLang().split('-')[0]; // use navigator lang if available
 
-      if (location.href.indexOf('userLang=en') > -1) {
-          userLang = 'en';
-      }
-      // the lang to use, if the lang isn't available, it will use the current loader to get them
-      translate.use(userLang).subscribe((res: any) => {
-          // In here you can put the code you want. At this point the lang will be loaded
-      });
-  }ƒ
+        if (location.href.indexOf('userLang=en') > -1) {
+            userLang = 'en';
+        }
+        // the lang to use, if the lang isn't available, it will use the current loader to get them
+        translate.use(userLang).subscribe((res: any) => {
+            // In here you can put the code you want. At this point the lang will be loaded
+        });
+    } ƒ
 }

@@ -1,0 +1,38 @@
+.dialog {
+    background: rgb(255, 255, 255);
+    border-radius: 4px;
+    width: 36rem;
+  }
+
+  .close_button {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.title {
+    display: inline-block;
+}
+
+.test-textbox {
+    display: inline-block;
+    width: 30.5rem;
+    position: relative;
+    top: 15px;
+}
+
+.test-button {
+    display: inline-block;
+    margin-left: 10px;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.response-textbox {
+    width: 35rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+

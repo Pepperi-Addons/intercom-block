@@ -1,0 +1,14 @@
+
+<div class="dialog">
+  <div mat-dialog-title class="header mat-dialog-title pepperi-border-bottom">
+      <h2 class="title"> {{ "Test_Intercom_API_Title" | translate}} </h2>
+      <pep-button class="close_button" spacing-element [sizeType]="'sm'" [classNames]="'pep-spacing-element'" iconName="system_close" [styleType]="'weak'" (buttonClick)="onCloseFormClicked()"></pep-button>
+  </div>
+<div class="grid-container">
+    <div>
+        <pep-textbox class=test-textbox [label]="'Test_Email' | translate" [(value)]="email" ></pep-textbox>
+        <pep-button class="test-button" [value]="'Test' | translate" styleStateType='caution' [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="onTestButtonClicked()"></pep-button>
+    </div>
+    <pep-textarea  class=response-textbox [label]="'Response' | translate" rowSpan="3" disabled="true" [(value)]="response" ></pep-textarea>
+</div>
+</div>

@@ -3,7 +3,6 @@ import { Client } from '@pepperi-addons/debug-server';
 import { DUMMY_SECRET_KEY, BLOCK_META_DATA_TABLE_NAME, BLOCK_CPI_META_DATA_TABLE_NAME, Profile } from '../shared/entities';
 import * as encryption from '../shared/encryption-service'
 import * as https from "https"
-import { v4 as uuid } from 'uuid';
 
 class MyService {
 
@@ -160,7 +159,7 @@ class MyService {
 
     async updateCPIData(body) {
         if (body) {
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).upsert(body);
+            return await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).upsert(body);
         }
     }
 
@@ -168,8 +167,7 @@ class MyService {
         let onlineEndpointObj = {
             "Enable": false,
             "Token": "",
-            "ChatColor": "rgba(204, 204, 204, 1)",
-            "Key": uuid()
+            "ChatColor": "",
         };
         await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(data => {
             if (data[0]) {
@@ -180,12 +178,22 @@ class MyService {
         return onlineEndpointObj;
     }
 
+    async isTokenExist() {
+        try {
+            let data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find();
+            return (data[0].Token && data[0].Token.length > 0)
+        }
+        catch {
+            return false;
+        }
+    }
+
     async saveToken(body) {
-        if (body && body.Token) {
+        if (body && body.Token != undefined) {
             let currentToken = {};
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(data => {
-                if (data[0].Token) {
-                    currentToken = data[0].Token;
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).get(body.Key).then(data => {
+                if (data.Token) {
+                    currentToken = data.Token;
                 }
             });
 
@@ -197,11 +205,11 @@ class MyService {
             else if (body.Token && body.Token.length > 0) { // real Token
                 let enctyptedToken = encryption.encryptSecretKey(body.Token, this.addonSecretKey);
                 body.Token = enctyptedToken;
-                this.updateCPIData(body);
+                return this.updateCPIData(body);
             }
             else {
                 body.Token = "";
-                this.updateCPIData(body);
+                return this.updateCPIData(body);
             }
         }
         else {
@@ -211,60 +219,71 @@ class MyService {
 
     // CPI endpoints 
     async getStatus(query) {
-        const unreadMessagesCount = await this.getUnreadMessagesCount(query);
+        const conversation = await this.getConversation(query.Email);
         return {
             "userEmail": query.Email,
-            "unreadCount": unreadMessagesCount,
+            "unreadCount": conversation.total_count,
             "someOtherProperty": "some other value"
         }
     }
 
-    async getUnreadMessagesCount(query) {
-        if (query && query.Email) {
+    async getContacts(email) {
+        if (email) {
             let contactMail = {
                 "query": {
                     "field": "email",
                     "operator": "=",
-                    "value": query.Email
+                    "value": email
                 }
             }
-            let contacts = JSON.parse(await this.httpsPost("https://api.intercom.io/contacts/search", contactMail) as any);
-            if (contacts && contacts.data[0]) {
-                let conversationQuery = {
-                    "query": {
-                        "operator": "AND",
-                        "value": [
-                            {
-                                "field": "read",
-                                "operator": "=",
-                                "value": false
-                            },
-                            {
-                                "field": "contact_ids",
-                                "operator": "=",
-                                "value": contacts.data[0].id
-                            }
-                        ]
-                    }
-                }
-
-                let conversations = JSON.parse(await this.httpsPost("https://api.intercom.io/conversations/search", conversationQuery) as any)
-                if (conversations) {
-                    return conversations.total_count;
-                }
-                else {
-                    throw new Error(`Error in intercom.io/conversations request`);
-                }
-            }
-            else {
-                throw new Error(`Error in intercom.io/contacts request`);
-            }
+            return JSON.parse(await this.httpsPost("https://api.intercom.io/contacts/search", contactMail) as any);
         }
         else {
             throw new Error(`Email is required`);
-
         }
+    }
 
+    async getConversation(email) {
+        let contacts = await this.getContacts(email);
+
+        if (contacts && contacts.data[0]) {
+            let conversationQuery = {
+                "query": {
+                    "operator": "AND",
+                    "value": [
+                        {
+                            "field": "read",
+                            "operator": "=",
+                            "value": false
+                        },
+                        {
+                            "field": "contact_ids",
+                            "operator": "=",
+                            "value": contacts.data[0].id
+                        }
+                    ]
+                }
+            }
+
+            let conversations = JSON.parse(await this.httpsPost("https://api.intercom.io/conversations/search", conversationQuery) as any)
+            if (conversations) {
+                return conversations;
+            }
+            else {
+                throw new Error(`Error in intercom.io/conversations request`);
+            }
+        }
+        throw new Error(`There are no contacts`);
+    }
+
+    async testIntercomAPI(query) {
+        let conversations = await this.getConversation(query.Email);
+        return {
+            "conversations": conversations,
+            "userEmail": query.Email,
+            "unreadCount": conversations.total_count,
+            "someOtherProperty": "some other value"
+        }
     }
 
     // https POST request [using https module]
