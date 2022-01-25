@@ -16,6 +16,8 @@ export class AddProfileFormComponent implements OnInit {
   formMode: ProfileFormMode = 'Add';
   profilesOptions: { key: string, value: string }[] = [];
   pagesOptions: { key: string, value: string }[] = [];
+  selectedPage: { key: string, value: string };
+  selectedProfile: { key: string, value: string };
 
   constructor(      
     private layoutService: PepLayoutService,
@@ -50,11 +52,13 @@ export class AddProfileFormComponent implements OnInit {
   async onValueChanged(element, $event) {
     switch (element) {
       case 'Profile': {
+        this.selectedProfile = $event;
         let profile = this.profilesOptions.find(profile => profile.key == $event)
         this.dialogData.SelectedProfile = {"Name": profile.value, "ID": profile.key};
         break;
       }
       case 'Page': {
+        this.selectedPage = $event;
         let page = this.pagesOptions.find(page => page.key == $event);
         this.dialogData.SelectedPage = {"Name": page.value, "Key": page.key};
         break;
