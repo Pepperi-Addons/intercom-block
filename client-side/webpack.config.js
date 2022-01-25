@@ -3,6 +3,8 @@ const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPl
 const mf = require("@angular-architects/module-federation/webpack");
 const path = require("path");
 const share = mf.share;
+const singleSpaAngularWebpack = require('single-spa-angular-webpack5/lib/webpack').default;
+const { merge } = require('webpack-merge');
 
 const sharedMappings = new mf.SharedMappings();
 sharedMappings.register(
@@ -10,42 +12,47 @@ sharedMappings.register(
     [
         /* mapped paths to share */
     ]);
-
-// TODO: Change block_file_name to block name (lowercase and if it more then one word put '_' between them),
-// this name should be the same as AddonRelativeURL that declared on the relation object (search for runMigration function in installation.ts file).
+    
 const filename = 'chat'; // block_file_name
 
-module.exports = {
-    output: {
-        uniqueName: `${filename}`,
-        publicPath: "auto"
-    },
-    optimization: {
-        // Only needed to bypass a temporary bug
-        runtimeChunk: false
-    },
-    resolve: {
-        alias: {
-        ...sharedMappings.getAliases(),
-        }
-    },
-    plugins: [
-        new ModuleFederationPlugin({
-            name: `${filename}`,
-            filename: `${filename}.js`,
-            exposes: {
-                './BlockModule': './src/app/block/index.ts',
-                './BlockEditorModule': './src/app/block-editor/index.ts',
-            },
-            shared: share({
-                "@angular/core": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
-                "@angular/common": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
-                "@angular/common/http": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
-                "@angular/router": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' },
-                
-                ...sharedMappings.getDescriptors()
-            })
-        }),
-        sharedMappings.getPlugin()
-    ]
+module.exports = (config, options, env) => {
+    const mfConfig = {
+        output: {
+            uniqueName: `${filename}`,
+            publicPath: "auto"
+        },
+        optimization: {
+            // Only needed to bypass a temporary bug
+            runtimeChunk: false
+        },
+        resolve: {
+            alias: {
+                ...sharedMappings.getAliases(),
+            }
+        },
+        plugins: [
+            new ModuleFederationPlugin({
+                name: `${filename}`,
+                filename: `${filename}.js`,
+                exposes: {
+                    './BlockModule': './src/app/block/index.ts',
+                    './BlockEditorModule': './src/app/block-editor/index.ts'
+                },
+                shared: share({
+                    "@angular/core": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
+                    "@angular/common": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
+                    "@angular/common/http": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' }, 
+                    "@angular/router": { eager: true, singleton: true, strictVersion: true, requiredVersion: 'auto' },
+                    
+                    ...sharedMappings.getDescriptors()
+                })
+            }),
+            sharedMappings.getPlugin()
+        ]
+    };
+
+    const merged = merge(config, mfConfig);
+    const singleSpaWebpackConfig = singleSpaAngularWebpack(merged, options);
+    return singleSpaWebpackConfig;
+    //Feel free to modify this webpack config however you'd like to
 };

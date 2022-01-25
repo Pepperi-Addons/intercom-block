@@ -19,7 +19,7 @@ export class BlockService {
             "Key": key,
             "newSecretKey": secretKey
         };
-        return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/save_secret_key`, obj).toPromise();
+        return await this.addonService.pepPost(`/addons/api/${this.addonService.addonUUID}/api/secret_key`, obj).toPromise();
     }
 
     async getUser(key) {
@@ -29,7 +29,7 @@ export class BlockService {
     }
 
     async isSecretKeyExist(key: string) {
-        let url = `/addons/api/${this.addonService.addonUUID}/api/is_secret_key_exist?Key=${key}`
+        let url = `/addons/api/${this.addonService.addonUUID}/api/secret_key?Key=${key}`
         return await this.addonService.pepGet(encodeURI(url)).toPromise();
     }
 }

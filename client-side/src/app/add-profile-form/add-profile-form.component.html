@@ -1,0 +1,23 @@
+
+<div class="dialog">
+    <div mat-dialog-title class="header mat-dialog-title pepperi-border-bottom">
+        <h2 class="title"> {{ "Add_Profile" | translate}} </h2>
+        <pep-button class="close_button" spacing-element [sizeType]="'sm'" [classNames]="'pep-spacing-element'" iconName="system_close" [styleType]="'weak'" (buttonClick)="onCloseFormClicked()"></pep-button>
+    </div>
+  <div class="grid-container">
+    <pep-select [label]="'Choose_Profile' | translate" type="select" [emptyOption]="false" [value]="this.selectedProfile" [mandatory]="true" [disabled]="formMode=='Edit'" xAlignment="left" [options]="this.profilesOptions" [showTitle]="true" (valueChange)="onValueChanged('Profile',$event)"></pep-select>
+    <pep-select [label]="'Choose_Page' | translate" [value]="this.selectedPage" type="select" [emptyOption]="false" [mandatory]="false" [disabled]="false" xAlignment="left" [options]="this.pagesOptions" [showTitle]="true" (valueChange)="onValueChanged('Page',$event)"></pep-select>
+  </div>
+  <div mat-dialog-actions class="pepperi-border-top mat-dialog-actions split-actions"
+      style="justify-content: flex-end;">
+      <div class="spacing-element-negative">
+          <button class="spacing-element pepperi-button md strong mat-button" mat-button (click)="onDoneButtonClicked()">
+              <span class="mat-button-wrapper">
+                  {{ "Done"| translate }}
+              </span>
+              <div class="mat-button-ripple mat-ripple" matripple></div>
+              <div class="mat-button-focus-overlay"></div>
+          </button>
+      </div>
+  </div>
+</div>

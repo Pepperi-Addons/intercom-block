@@ -1,0 +1,51 @@
+<pep-page-layout>
+  <ng-container pep-main-area class="main" *ngIf="isLoaded">
+    <div class="main">
+      <pep-top-bar [title]="" [inline]="false">
+        <div header-start-content>
+          <p class="configuration-note">{{'Home_Page_Chat_Configuration_Note' | translate}} </p>
+        </div>
+        <div  header-end-content>
+          <pep-button #enableButton class="enable-button" pep-spacing-element [(value)]="onlineAPIButtonTitle" [sizeType]="'sm'" [styleType]="'strong'" [(styleStateType)]="onlineAPIButtonStyleStateType" (buttonClick)="onOnlineEndpointButtonClicked()">
+          </pep-button>
+        </div>
+      </pep-top-bar>
+
+      <div class="" pepperi-border-bottom *ngIf="onlineEndpointObj && onlineEndpointObj.Enable">
+        <div class="third-party-configuration pepperi-border-bottom">
+          <p>
+              {{'Access_Token_note' | translate}}
+          </p>
+          <div class="access-token-input">
+            <pep-textbox class="access-token-textbox" [label]="'Access_Token_Title' | translate" [(value)]="token"></pep-textbox>
+            <pep-button class="save-token-button" [value]="'Save' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="onSaveTokenClicked()"></pep-button>
+            <pep-button class="save-token-button" [value]="'Test' | translate" [sizeType]="'md'" [styleType]="'weak'" (buttonClick)="onTestTokenClicked()"></pep-button>
+          </div>
+        </div>
+        <div class="chat-notificaton pepperi-border-bottom">
+          <p>
+            {{'Chat_Color_Picker_Note' | translate}}
+          </p>
+          <pep-color class="color-picker"   [(value)]="chatColor"[disabled]="false" xAlignment="left" type="any" [showTitle]="true" [showAAComplient]="true" (valueChange)="onColorChanged($event)"></pep-color>
+          <pep-button class="save-color-button" pep-spacing-element [value]="'Save' | translate" [sizeType]="'md'" [styleType]="'strong'" (buttonClick)="onSaveColorClicked($event)"></pep-button>
+        </div>
+      </div>
+
+      <div class="profiles-generic-list">
+        <p> {{'Block_Settings_Table_Note' | translate}} </p>
+        <pep-generic-list 
+        [title] = " 'Block_Settings_Table_Title' | translate"
+        [allowMultipleSelection]="true"  
+        [dataSource]="listDataSource" 
+        [inline]="true"
+        [noDataMessage]= noDataMessage
+        [showSearch]="false">
+        <div right-buttons>
+          <pep-button [sizeType]="'sm'" [classNames]="'pep-spacing-element'" iconName="number_plus" [styleType]="'strong'" (buttonClick)="openProfileForm(1)"></pep-button>
+        </div>
+      </pep-generic-list>
+      </div>
+
+    </div>
+  </ng-container>
+</pep-page-layout>
