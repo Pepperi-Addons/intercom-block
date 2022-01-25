@@ -227,7 +227,7 @@ class MyService {
         }
     }
 
-    async getContacts(email) {
+    async getContacts(email, token) {
         if (email) {
             let contactMail = {
                 "query": {
@@ -236,7 +236,7 @@ class MyService {
                     "value": email
                 }
             }
-            return JSON.parse(await this.httpsPost("https://api.intercom.io/contacts/search", contactMail) as any);
+            return this.httpsPost("https://api.intercom.io/contacts/search", contactMail, token)
         }
         else {
             throw new Error(`Email is required`);
@@ -244,7 +244,14 @@ class MyService {
     }
 
     async getConversation(email) {
-        let contacts = await this.getContacts(email);
+        let token = "";
+        await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(data => {
+            if (data[0].Token) {
+                token = encryption.decryptSecretKey(data[0].Token, this.addonSecretKey);
+            }
+        });
+
+        let contacts = await this.getContacts(email, token);
 
         if (contacts && contacts.data[0]) {
             let conversationQuery = {
@@ -265,7 +272,7 @@ class MyService {
                 }
             }
 
-            let conversations = JSON.parse(await this.httpsPost("https://api.intercom.io/conversations/search", conversationQuery) as any)
+            let conversations = await this.httpsPost("https://api.intercom.io/conversations/search", conversationQuery, token);
             if (conversations) {
                 return conversations;
             }
@@ -287,15 +294,8 @@ class MyService {
     }
 
     // https POST request [using https module]
-    async httpsPost(url, data) {
+    async httpsPost(url, data, token) {
         const dataString = JSON.stringify(data)
-
-        let token = "";
-        await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_CPI_META_DATA_TABLE_NAME).find().then(data => {
-            if (data[0].Token) {
-                token = encryption.decryptSecretKey(data[0].Token, this.addonSecretKey);
-            }
-        });
 
         const options = {
             method: 'POST',
@@ -309,7 +309,7 @@ class MyService {
             timeout: 5000, // in ms
         }
 
-        return new Promise((resolve, reject) => {
+        let response = await new Promise((resolve, reject) => {
             const req = https.request(url, options, (res: any) => {
                 if (res.statusCode < 200 || res.statusCode > 299) {
                     return reject(new Error(`HTTP status code ${res.statusCode}`))
@@ -335,6 +335,8 @@ class MyService {
             req.write(dataString)
             req.end()
         })
+
+        return JSON.parse(response as any);
 
     }
 }
