@@ -25,15 +25,6 @@ class IntercomCPIManager {
         });
     }
 
-    async getPapiClient(): Promise<PapiClient> {
-        return new PapiClient({
-            baseURL: this.papiBaseURL,
-            token: await pepperi.auth.getAccessToken(),
-            addonUUID: config.AddonUUID,
-            suppressLogging: true
-        })
-    }
-
     load() {
         this.subscribe()
     }
@@ -51,8 +42,7 @@ class IntercomCPIManager {
             },
                 async (data) => {
                     let chatColor = "";
-                    const papiClient = await this.getPapiClient();
-                    const status = await papiClient.addons.api.uuid(config.AddonUUID).file('api').func('get_status').get({ "Email": this.userEmail });
+                    const status = await pepperi.papiClient.addons.api.uuid(config.AddonUUID).file('api').func('get_status').get({ "Email": this.userEmail });
                     if (status.unreadCount > 0) {
                         chatColor = this.onlineEndpointData.ChatColor;
                     }
