@@ -72,8 +72,21 @@ class MyService {
         }
     }
 
+    async getUserInfoByUserUUID(userUUID, employeeType) {
+        let url;
+        //Buyer(EmployeeType = 3) should go to /contacts, there rest to /users 
+        if (employeeType == 3) {
+            url = `/contacts/uuid/${userUUID}`;
+        }
+        else {
+            url = `/users/uuid/${userUUID}`;
+        }
+        return await this.papiClient.get(url);
+    }
+
     async getUserData(query) {
-        const user = await this.papiClient.get(`/users/uuid/${query.UserUUID}`);
+        const user = await this.getUserInfoByUserUUID(query.UserUUID, query.EmployeeType);
+
         try {
             const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.Key);
             if (data.SecretKey) {
