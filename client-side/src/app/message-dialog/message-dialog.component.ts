@@ -13,6 +13,8 @@ export class MessageDialogComponent implements OnInit {
   title: string;
   bottomButtonText: string;
   dialogType: DialogType;
+  buttonStyleStateType:string;
+  styleType: string;
 
   constructor(
       public dialogRef: MatDialogRef<MessageDialogComponent>,
@@ -22,6 +24,8 @@ export class MessageDialogComponent implements OnInit {
     this.title = incoming.data.Title;
     this.bottomButtonText = incoming.data.ButtonText;
     this.dialogType = incoming.data.DialogType
+    this.buttonStyleStateType = this.dialogType == 'BeforeDisableOnline' ? 'caution' : 'system';
+    this.styleType = this.dialogType == 'BeforeDisableOnline' ? 'strong' : 'weak';
    }
 
   ngOnInit() {
