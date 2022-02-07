@@ -85,20 +85,23 @@ class MyService {
     }
 
     async getUserData(query) {
-        const user = await this.getUserInfoByUserUUID(query.UserUUID, query.EmployeeType);
-
         try {
-            const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.Key);
+            const [user, data] = await Promise.all([
+                this.getUserInfoByUserUUID(query.UserUUID, query.EmployeeType),
+                this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.Key)
+            ]);
             if (data.SecretKey) {
                 let secretKey = await encryption.decryptSecretKey(data.SecretKey, this.addonSecretKey)
                 const userHash = await encryption.HMAC(secretKey, user.Email)
+
                 return { "FirstName": user.FirstName, "Email": user.Email, "UserHash": userHash }
             }
             else {
                 throw new Error(`secretKey does not exist`);
             }
         }
-        catch {
+        catch (err) {
+            let user = await this.getUserInfoByUserUUID(query.UserUUID, query.EmployeeType);
             return { "FirstName": user.FirstName, "Email": user.Email }
         }
     }
@@ -232,9 +235,10 @@ class MyService {
 
     // CPI endpoints 
     async getStatus(query) {
-        const conversation = await this.getConversation(query.Email);
+        let email = decodeURIComponent(query.Email);
+        const conversation = await this.getConversation(email);
         return {
-            "userEmail": query.Email,
+            "userEmail": email,
             "unreadCount": conversation.total_count,
             "someOtherProperty": "some other value"
         }
@@ -293,7 +297,7 @@ class MyService {
                 throw new Error(`Error in intercom.io/conversations request`);
             }
         }
-        throw new Error(`There are no contacts`);
+        throw new Error(`There are no contacts` + `${email}`);
     }
 
     async testIntercomAPI(query) {

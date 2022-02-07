@@ -42,7 +42,7 @@ class IntercomCPIManager {
             },
                 async (data) => {
                     let chatColor = "";
-                    const status = await pepperi.papiClient.addons.api.uuid(config.AddonUUID).file('api').func('get_status').get({ "Email": this.userEmail });
+                    const status = await pepperi.papiClient.addons.api.uuid(config.AddonUUID).file('api').func('get_status').get({ Email: this.userEmail });
                     if (status.unreadCount > 0) {
                         chatColor = this.onlineEndpointData.ChatColor;
                     }
