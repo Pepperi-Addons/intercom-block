@@ -1,6 +1,5 @@
-<pep-page-layout>
-  <ng-container pep-main-area class="main" *ngIf="isLoaded">
-    <div class="main">
+<div class="settings-container">
+    <div class="main" *ngIf="isLoaded" display="grid">
       <pep-top-bar [title]="" [inline]="false">
         <div header-start-content>
           <p class="configuration-note">{{'Home_Page_Chat_Configuration_Note' | translate}} </p>
@@ -33,8 +32,8 @@
 
       <div class="profiles-generic-list">
         <p> {{'Block_Settings_Table_Note' | translate}} </p>
+        <h4> {{'Block_Settings_Table_Title' | translate}} </h4>
         <pep-generic-list 
-        [title] = " 'Block_Settings_Table_Title' | translate"
         [allowMultipleSelection]="true"  
         [dataSource]="listDataSource" 
         [inline]="true"
@@ -47,5 +46,4 @@
       </div>
 
     </div>
-  </ng-container>
-</pep-page-layout>
+</div>

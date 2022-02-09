@@ -1,3 +1,7 @@
+.settings-container {
+    height: 100%;
+}
+
 .configuration-note {
     display: inline-block;
     margin-bottom: 15px;
@@ -70,8 +74,18 @@
 
 .main {
     height: 100%;
-    display: block;
+    max-width: 832px;
+    display: grid;
     margin-left: 0px;
     grid-template-rows: auto, auto,1fr;
-    overflow: hidden;
+}
+
+p {
+    max-width: 544px;
+}
+h4 {
+    color: #9f6000!important;
+    border-radius: .25rem;
+    padding: .5rem;
+    background-color: #feefb3!important; 
 }

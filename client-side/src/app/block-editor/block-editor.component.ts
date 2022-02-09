@@ -86,6 +86,7 @@ export class BlockEditorComponent implements OnInit {
             }
             case 'SecretKey': {
                 this.saveSecretKey($event)
+                this.secretKey = DUMMY_SECRET_KEY
                 break
             }
             case 'IsIdentityVerifictionOn': {
