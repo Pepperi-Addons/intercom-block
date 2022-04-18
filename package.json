@@ -17,6 +17,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@peculiar/webcrypto": "^1.2.3",
+		"@pepperi-addons/cpi-node": "^0.2.5",
 		"@pepperi-addons/scripts": "^2.0.4",
 		"crypto-browserify": "^3.11.0",
 		"crypto-js": "^4.1.1",

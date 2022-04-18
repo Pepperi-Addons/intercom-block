@@ -1,8 +1,8 @@
 <div class="block-editor">
     <pep-textbox [label]="'App_ID_Textbox_Title' | translate" [(value)]="appID" (valueChange)="onValueChanged('AppID', $event)"></pep-textbox>
-    <pep-checkbox value="isIdentityVerifictionOn" [label]="'Identity_Verification_Checkbox_Title' | translate" type="checkbox" required="false" [mandatory]="false" [disabled]="false" xAlignment="left" [showTitle]="false" [renderTitle]="true" [visible]="true" (valueChange)="onValueChanged('IsIdentityVerifictionOn', $event)"></pep-checkbox>
+    <pep-checkbox [(value)]="isIdentityVerifictionOn" [label]="'Identity_Verification_Checkbox_Title' | translate" type="checkbox" required="false" [mandatory]="false" [disabled]="false" xAlignment="left" [showTitle]="false" [renderTitle]="true" [visible]="true" (valueChange)="onValueChanged('IsIdentityVerifictionOn', $event)"></pep-checkbox>
     <p class="notes"> {{'Secret_Key_Note' | translate}} </p>
-    <pep-textbox #secretKeyTextbox [label]="'Secret_Key_Textbox_Title' | translate" [(value)]="secretKey" id="secret_key" [disabled]="isIdentityVerifictionOn == false" (valueChange)="onValueChanged('SecretKey', $event)"></pep-textbox>
+    <pep-textbox #secretKeyTextbox [label]="'Secret_Key_Textbox_Title' | translate" [(value)]="secretKey" id="secret_key" [(disabled)]="!isIdentityVerifictionOn" (valueChange)="onValueChanged('SecretKey', $event)"></pep-textbox>
     <h4> {{'Launcher_Title' | translate}} </h4>
     <p class="notes"> {{'Launcher_Note' | translate}} </p>
     <pep-select [label]="'Launcher_Visibility_Title' | translate" [(value)]="launcherVisibility" type="select" [emptyOption]="false" [mandatory]="false" [disabled]="false" xAlignment="left" [options]="launcherVisibilityOptions" [showTitle]="true" (valueChange)="onValueChanged('LauncherVisibility',$event)"></pep-select>

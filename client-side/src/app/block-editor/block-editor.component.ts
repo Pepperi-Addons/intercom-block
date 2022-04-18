@@ -29,7 +29,7 @@ export class BlockEditorComponent implements OnInit {
     secretKey: string;
     uuid: string;
 
-    isIdentityVerifictionOn: boolean = true;
+    isIdentityVerifictionOn: boolean;
     onLoadOptions: { key: OnLoadOption, value: string }[];
     onHideOptions: { key: OnHideOption, value: string }[];
     launcherVisibilityOptions: { key: LauncherVisibility, value: string }[];
@@ -51,6 +51,7 @@ export class BlockEditorComponent implements OnInit {
         this.onHide = this.hostObject.configuration?.OnHide ?? "Nothing";
         this.appID = this.hostObject.configuration?.AppID ?? "";
         this.launcherVisibility = this.hostObject.configuration?.LauncherVisibility;
+        this.isIdentityVerifictionOn = this.hostObject.configuration?.IdentityVerifictionOn ?? false;
         this.uuid = this.hostObject.configuration?.Key;
 
         if (this.uuid && await this.blockService.isSecretKeyExist(this.uuid) == true) {
@@ -85,10 +86,11 @@ export class BlockEditorComponent implements OnInit {
             }
             case 'SecretKey': {
                 this.saveSecretKey($event)
+                this.secretKey = DUMMY_SECRET_KEY
                 break
             }
             case 'IsIdentityVerifictionOn': {
-                this.isIdentityVerifictionOn = !this.isIdentityVerifictionOn
+                this.isIdentityVerifictionOn = $event
                 this.secretKeyTextBox.disabled = !this.isIdentityVerifictionOn;
                 break
             }
@@ -112,6 +114,7 @@ export class BlockEditorComponent implements OnInit {
                 "OnLoad": this.onLoad,
                 "OnHide": this.onHide,
                 "LauncherVisibility": this.launcherVisibility,
+                "IdentityVerifictionOn": this.isIdentityVerifictionOn,
                 "Key": this.uuid
             }
         })

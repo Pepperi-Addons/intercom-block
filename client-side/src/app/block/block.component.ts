@@ -103,6 +103,7 @@ export class BlockComponent implements OnInit {
                     });
                     window.dispatchEvent(event);
                 });
+                this.openChat();
                 break;
             }
         }

@@ -72,20 +72,36 @@ class MyService {
         }
     }
 
+    async getUserInfoByUserUUID(userUUID, employeeType) {
+        let url;
+        //Buyer(EmployeeType = 3) should go to /contacts, there rest to /users 
+        if (employeeType == 3) {
+            url = `/contacts/uuid/${userUUID}`;
+        }
+        else {
+            url = `/users/uuid/${userUUID}`;
+        }
+        return await this.papiClient.get(url);
+    }
+
     async getUserData(query) {
-        const user = await this.papiClient.get(`/users/uuid/${query.UserUUID}`);
         try {
-            const data = await this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.Key);
+            const [user, data] = await Promise.all([
+                this.getUserInfoByUserUUID(query.UserUUID, query.EmployeeType),
+                this.papiClient.addons.data.uuid(this.addonUUID).table(BLOCK_META_DATA_TABLE_NAME).get(query.Key)
+            ]);
             if (data.SecretKey) {
                 let secretKey = await encryption.decryptSecretKey(data.SecretKey, this.addonSecretKey)
                 const userHash = await encryption.HMAC(secretKey, user.Email)
+
                 return { "FirstName": user.FirstName, "Email": user.Email, "UserHash": userHash }
             }
             else {
                 throw new Error(`secretKey does not exist`);
             }
         }
-        catch {
+        catch (err) {
+            let user = await this.getUserInfoByUserUUID(query.UserUUID, query.EmployeeType);
             return { "FirstName": user.FirstName, "Email": user.Email }
         }
     }
@@ -219,9 +235,10 @@ class MyService {
 
     // CPI endpoints 
     async getStatus(query) {
-        const conversation = await this.getConversation(query.Email);
+        let email = decodeURIComponent(query.Email);
+        const conversation = await this.getConversation(email);
         return {
-            "userEmail": query.Email,
+            "userEmail": email,
             "unreadCount": conversation.total_count,
             "someOtherProperty": "some other value"
         }
@@ -280,7 +297,7 @@ class MyService {
                 throw new Error(`Error in intercom.io/conversations request`);
             }
         }
-        throw new Error(`There are no contacts`);
+        throw new Error(`There are no contacts` + `${email}`);
     }
 
     async testIntercomAPI(query) {

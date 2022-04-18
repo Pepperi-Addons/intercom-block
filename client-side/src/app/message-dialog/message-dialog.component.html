@@ -15,13 +15,8 @@
   <div mat-dialog-actions class="pepperi-border-top mat-dialog-actions split-actions"
       style="justify-content: flex-end;">
       <div class="spacing-element-negative">
-          <button class="spacing-element pepperi-button md weak mat-button" mat-button [mat-dialog-close] (click)="onDisableButtonClicked()">
-              <span class="mat-button-wrapper">
-                  {{bottomButtonText}}
-              </span>
-              <div class="mat-button-ripple mat-ripple" matripple></div>
-              <div class="mat-button-focus-overlay"></div>
-          </button>
+          <pep-button class="spacing-element" mat-button [(value)]="bottomButtonText" [sizeType]="'md'" [styleType]="styleType" [(styleStateType)]="buttonStyleStateType" (click)="onDisableButtonClicked()">
+          </pep-button>
       </div>
   </div>
 </div>

@@ -24,7 +24,8 @@ export class BlockService {
 
     async getUser(key) {
         let userUUID = this.addonService.parsedToken["pepperi.useruuid"]
-        let url = `/addons/api/${this.addonService.addonUUID}/api/get_user_data?Key=${key}&UserUUID=${userUUID}`
+        let employeeType = this.addonService.parsedToken["pepperi.employeetype"]
+        let url = `/addons/api/${this.addonService.addonUUID}/api/get_user_data?Key=${key}&UserUUID=${userUUID}&EmployeeType=${employeeType}`
         return await this.addonService.pepGet(encodeURI(url)).toPromise();
     }
 

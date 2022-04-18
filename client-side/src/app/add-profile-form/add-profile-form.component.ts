@@ -29,6 +29,9 @@ export class AddProfileFormComponent implements OnInit {
     });
     this.dialogData = incoming.data;
     this.formMode = this.dialogData.FormMode;
+    if (this.formMode == 'Edit') {
+      this.selectedProfile = incoming.data.SelectedProfile.Name;
+    }
    }
 
   ngOnInit() {
