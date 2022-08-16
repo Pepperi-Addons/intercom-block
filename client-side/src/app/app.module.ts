@@ -1,11 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { DoBootstrap, Injector, NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routes';
 import { PepNgxLibModule, PepAddonService, PepFileService } from '@pepperi-addons/ngx-lib';
 import { BlockSettingsModule } from './block-settings';
-import { BlockEditorModule } from './block-editor';
-import { BlockModule } from './block'
+import { BlockEditorComponent, BlockEditorModule } from './block-editor';
+import { BlockComponent, BlockModule } from './block'
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
 import { AddProfileFormComponent } from './add-profile-form/add-profile-form.component';
@@ -22,28 +22,8 @@ import { TestIntercomAPIDialogComponent } from './test-intercom-api-dialog/test-
 import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
 import { PepTextareaModule } from '@pepperi-addons/ngx-lib/textarea';
 
-export function createTranslateLoader(http: HttpClient, fileService: PepFileService, addonService: PepAddonService) {
-    const translationsPath: string = fileService.getAssetsTranslationsPath();
-    const translationsSuffix: string = fileService.getAssetsTranslationsSuffix();
-    const addonStaticFolder = addonService.getAddonStaticFolder();
-
-    return new MultiTranslateHttpLoader(http, [
-        {
-            prefix:
-                addonStaticFolder.length > 0
-                    ? addonStaticFolder + translationsPath
-                    : translationsPath,
-            suffix: translationsSuffix,
-        },
-        {
-            prefix:
-                addonStaticFolder.length > 0
-                    ? addonStaticFolder + "assets/i18n/"
-                    : "/assets/i18n/",
-            suffix: ".json",
-        },
-    ]);
-}
+import { config } from './addon.config';
+import { SettingsComponent } from './settings';
 
 @NgModule({
     imports: [
@@ -66,8 +46,9 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
-                useFactory: createTranslateLoader,
-                deps: [HttpClient, PepFileService, PepAddonService]
+                useFactory: (addonService: PepAddonService) => 
+                    PepAddonService.createMultiTranslateLoader(config.AddonUUID, addonService, ['ngx-lib', 'ngx-composite-lib']),
+                deps: [PepAddonService]
             }
         })
 
@@ -80,24 +61,21 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
     ],
     providers: [],
     bootstrap: [
-        AppComponent
+        // AppComponent
     ]
 })
-export class AppModule {
+export class AppModule implements DoBootstrap {
     constructor(
-        translate: TranslateService
+        private injector: Injector,
+        translate: TranslateService,
+        private pepAddonService: PepAddonService
     ) {
+        this.pepAddonService.setDefaultTranslateLang(translate);
+    }
 
-        let userLang = 'en';
-        translate.setDefaultLang(userLang);
-        userLang = translate.getBrowserLang().split('-')[0]; // use navigator lang if available
-
-        if (location.href.indexOf('userLang=en') > -1) {
-            userLang = 'en';
-        }
-        // the lang to use, if the lang isn't available, it will use the current loader to get them
-        translate.use(userLang).subscribe((res: any) => {
-            // In here you can put the code you want. At this point the lang will be loaded
-        });
-    } ƒ
+    ngDoBootstrap() {
+        this.pepAddonService.defineCustomElement(`settings-element-${config.AddonUUID}`, SettingsComponent, this.injector);
+        this.pepAddonService.defineCustomElement(`intercom-element-${config.AddonUUID}`, BlockComponent, this.injector);
+        this.pepAddonService.defineCustomElement(`intercom-editor-element-${config.AddonUUID}`, BlockEditorComponent, this.injector);
+    }
 }

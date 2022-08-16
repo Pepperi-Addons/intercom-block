@@ -12,8 +12,8 @@ export class EmptyRouteComponent { }
 
 const routes: Routes = [
     {
-        path: 'settings/:addon_uuid/block_settings',
-        component: BlockSettingsComponent
+        path: '',
+        loadChildren: () => import('./settings/settings.module').then(m=>m.SettingsModule),
     },
     {
         path: '**',

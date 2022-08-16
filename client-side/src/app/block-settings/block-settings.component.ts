@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { GenericListComponent, GenericListDataSource } from '@pepperi-addons/ngx-composite-lib/generic-list';
+import { GenericListComponent, IPepGenericListActions, IPepGenericListDataSource } from '@pepperi-addons/ngx-composite-lib/generic-list';
 import { TranslateService } from '@ngx-translate/core';
 import { BlockSettingsService } from './block-settings.service'
 import { ActivatedRoute } from '@angular/router';
@@ -10,6 +10,8 @@ import { ChangeDetectorRef } from '@angular/core';
 import { PepColorService } from '@pepperi-addons/ngx-lib';
 import { TestIntercomAPIDialogComponent } from '../test-intercom-api-dialog/test-intercom-api-dialog.component';
 import { DUMMY_SECRET_KEY } from '../../../../shared/entities';
+import { PepSelectionData } from '@pepperi-addons/ngx-lib/list';
+import { config } from '../addon.config';
 
 @Component({
   selector: 'app-block-settings',
@@ -39,7 +41,7 @@ export class BlockSettingsComponent implements OnInit {
     private route: ActivatedRoute,
     private ref: ChangeDetectorRef,
     private colorService: PepColorService) {
-    this.addonService.addonUUID = this.route.snapshot.params.addon_uuid;
+    this.addonService.addonUUID = config.AddonUUID;
   }
 
   ngOnInit() {
@@ -57,7 +59,7 @@ export class BlockSettingsComponent implements OnInit {
     }
 
     let isTokenExists = await this.blockSettingsService.isTokenExist();
-    if(isTokenExists == true) {
+    if (isTokenExists == true) {
       this.token = DUMMY_SECRET_KEY;
     }
 
@@ -66,55 +68,136 @@ export class BlockSettingsComponent implements OnInit {
     this.ref.detectChanges();
   }
 
-  listDataSource: GenericListDataSource = {
-    getList: async (state) => {
-      let chatCustomizationList = await this.blockSettingsService.getChatCustomizationList();
-      this.presentedProfiles = chatCustomizationList.map(customization => customization.ProfileID);
-      return chatCustomizationList;
-    },
+  listDataSource: IPepGenericListDataSource = this.getDataSource();
+  //   {
+  //   getList: async (state) => {
+  //     let chatCustomizationList = await this.blockSettingsService.getChatCustomizationList();
+  //     this.presentedProfiles = chatCustomizationList.map(customization => customization.ProfileID);
+  //     return chatCustomizationList;
+  //   },
 
-    getDataView: async () => {
-      return {
-        Context: {
-          Name: '',
-          Profile: { InternalID: 0 },
-          ScreenSize: 'Landscape'
+  //   getDataView: async () => {
+  //     return {
+  //       Context: {
+  //         Name: '',
+  //         Profile: { InternalID: 0 },
+  //         ScreenSize: 'Landscape'
+  //       },
+  //       Type: 'Grid',
+  //       Title: 'Profile hierarchy appliies',
+  //       Fields: [
+  //         {
+  //           FieldID: 'ProfileName',
+  //           Type: 'TextBox',
+  //           Title: this.translate.instant('Profile Name'),
+  //           Mandatory: false,
+  //           ReadOnly: true
+  //         },
+  //         {
+  //           FieldID: 'PageName',
+  //           Type: 'TextBox',
+  //           Title: this.translate.instant('Page Name'),
+  //           Mandatory: false,
+  //           ReadOnly: true
+  //         }
+  //       ],
+  //       Columns: [
+  //         {
+  //           Width: 50
+  //         },
+  //         {
+  //           Width: 50
+  //         }
+  //       ],
+
+  //       FrozenColumnsCount: 0,
+  //       MinimumColumnWidth: 0
+  //     }
+  //   },
+
+  //   getActions: async (objs) => {
+  //     const actions = [];
+  //     if (objs.length === 1) {
+  //       actions.push({
+  //         title: this.translate.instant("Edit"),
+  //         handler: async (objs) => {
+  //           this.openProfileForm('Edit', objs[0]);
+  //         }
+  //       });
+  //     }
+  //     if (objs.length >= 1) {
+  //       actions.push({
+  //         title: this.translate.instant("Delete"),
+  //         handler: async (objs) => {
+  //           this.deleteChatConfiguration(objs)
+  //         }
+  //       });
+  //     }
+
+  //     return actions;
+  //   }
+  // }
+
+  getDataSource() {
+    return {
+      init: async (params: any) => {
+        let chatCustomizationList = await this.blockSettingsService.getChatCustomizationList();
+        this.presentedProfiles = chatCustomizationList.map(customization => customization.ProfileID);
+        return Promise.resolve({
+          dataView: {
+            Context: {
+              Name: '',
+              Profile: { InternalID: 0 },
+              ScreenSize: 'Landscape'
+            },
+            Type: 'Grid',
+            Title: 'Profile hierarchy appliies',
+            Fields: [
+              {
+                FieldID: 'ProfileName',
+                Type: 'TextBox',
+                Title: this.translate.instant('Profile Name'),
+                Mandatory: false,
+                ReadOnly: true
+              },
+              {
+                FieldID: 'PageName',
+                Type: 'TextBox',
+                Title: this.translate.instant('Page Name'),
+                Mandatory: false,
+                ReadOnly: true
+              }
+            ],
+            Columns: [
+              {
+                Width: 50
+              },
+              {
+                Width: 50
+              }
+            ],
+
+            FrozenColumnsCount: 0,
+            MinimumColumnWidth: 0
+          },
+          totalCount: chatCustomizationList.length,
+          items: chatCustomizationList
+        });
+      },
+      inputs: {
+        pager: {
+          type: 'scroll'
         },
-        Type: 'Grid',
-        Title: 'Profile hierarchy appliies',
-        Fields: [
-          {
-            FieldID: 'ProfileName',
-            Type: 'TextBox',
-            Title: this.translate.instant('Profile Name'),
-            Mandatory: false,
-            ReadOnly: true
-          },
-          {
-            FieldID: 'PageName',
-            Type: 'TextBox',
-            Title: this.translate.instant('Page Name'),
-            Mandatory: false,
-            ReadOnly: true
-          }
-        ],
-        Columns: [
-          {
-            Width: 50
-          },
-          {
-            Width: 50
-          }
-        ],
+        selectionType: 'multi',
+        noDataFoundMsg: this.noDataMessage,
+      },
+    } as IPepGenericListDataSource
+  }
 
-        FrozenColumnsCount: 0,
-        MinimumColumnWidth: 0
-      }
-    },
-
-    getActions: async (objs) => {
+  actions: IPepGenericListActions = {
+    get: async (data: PepSelectionData) => {
       const actions = [];
-      if (objs.length === 1) {
+      if (data && data.rows.length === 1) {
         actions.push({
           title: this.translate.instant("Edit"),
           handler: async (objs) => {
@@ -122,7 +205,7 @@ export class BlockSettingsComponent implements OnInit {
           }
         });
       }
-      if (objs.length >= 1) {
+      if (data && data.rows.length >= 1) {
         actions.push({
           title: this.translate.instant("Delete"),
           handler: async (objs) => {
@@ -135,22 +218,22 @@ export class BlockSettingsComponent implements OnInit {
     }
   }
 
-private deleteChatConfiguration(objs) {
-  let message = this.translate.instant("Before_Disable_Online_Message");
-  let dialogData = {
-    "Message": message,
-    "Title": "",
-    "ButtonText": this.translate.instant("Yes"),
-    "DialogType": 'BeforeRemove'
-  }
-  return this.blockSettingsService.openDialog("", MessageDialogComponent, [], { data: dialogData }, (data) => {
-    if (data) {
-      this.blockSettingsService.deleteChatCustomization(objs).then(() => {
-        this.genericList.reload();
-      });
+  private deleteChatConfiguration(objs) {
+    let message = this.translate.instant("Before_Disable_Online_Message");
+    let dialogData = {
+      "Message": message,
+      "Title": "",
+      "ButtonText": this.translate.instant("Yes"),
+      "DialogType": 'BeforeRemove'
     }
-  });
-}
+    return this.blockSettingsService.openDialog("", MessageDialogComponent, [], { data: dialogData }, (data) => {
+      if (data) {
+        this.blockSettingsService.deleteChatCustomization(objs).then(() => {
+          this.listDataSource = this.getDataSource();
+        });
+      }
+    });
+  }
 
   setOnlineAPIButtonUI() {
     if (this.onlineEndpointObj.Enable == true) {
@@ -199,7 +282,7 @@ private deleteChatConfiguration(objs) {
           "Hidden": false
         };
         this.blockSettingsService.upsertChatCustomization(profile).then(() => {
-          this.genericList.reload();
+          this.listDataSource = this.getDataSource();
         });
       }
     }

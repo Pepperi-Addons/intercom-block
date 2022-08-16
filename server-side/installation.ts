@@ -13,14 +13,17 @@ import { Relation } from '@pepperi-addons/papi-sdk'
 import MyService from './my.service';
 import { BlockDataScheme, BlockCPIDataScheme } from './metadata';
 
+const filename = 'chat';
+
 export async function install(client: Client, request: Request): Promise<any> {
     // For page block template uncomment this.
     const relationsRes = await createPageBlockRelation(client);
+    const settingRes = await createSettingsRelation(client);
     const adalRes = await createADALSchemes(client)
     
     return {
-        success: adalRes.success && relationsRes.success,
-        errorMessage: `adalRes: ${adalRes.errorMessage}, relationsRes:  ${relationsRes.errorMessage}`
+        success: adalRes.success && relationsRes.success && settingRes.success,
+        errorMessage: `adalRes: ${adalRes.errorMessage}, relationsRes:  ${relationsRes.errorMessage}, settingsRes:  ${settingRes.errorMessage}`
     };
 }
 
@@ -36,26 +39,27 @@ export async function downgrade(client: Client, request: Request): Promise<any> 
     return {success:true,resultObject:{}}
 }
 
-
 async function createPageBlockRelation(client: Client): Promise<any> {
     try {
         const blockName = 'Intercom Chat';
 
         // TODO: Change to fileName that declared in webpack.config.js
-        const filename = 'chat';
 
         const pageComponentRelation: Relation = {
             RelationName: "PageBlock",
             Name: blockName,
             Description: `${blockName} block`,
             Type: "NgComponent",
-            SubType: "NG11",
+            SubType: "NG14",
             AddonUUID: client.AddonUUID,
             AddonRelativeURL: filename,
             ComponentName: `BlockComponent`, // This is should be the block component name (from the client-side)
             ModuleName: `BlockModule`, // This is should be the block module name (from the client-side)
             EditorComponentName: `BlockEditorComponent`, // This is should be the block editor component name (from the client-side)
-            EditorModuleName: `BlockEditorModule` // This is should be the block editor module name (from the client-side)
+            EditorModuleName: `BlockEditorModule`, // This is should be the block editor module name (from the client-side)
+            ElementsModule: 'WebComponents',
+            ElementName: `intercom-element-${client.AddonUUID}`,
+            EditorElementName: `intercom-editor-element-${client.AddonUUID}`,
         };
 
         const service = new MyService(client);
@@ -65,6 +69,37 @@ async function createPageBlockRelation(client: Client): Promise<any> {
         return { success: false, resultObject: err , errorMessage: `Error in upsert relation. error - ${err}`};
     }
 }
+
+async function createSettingsRelation(client: Client): Promise<any> {
+    try {
+        const blockName = 'Intercom Chat';
+
+        // TODO: Change to fileName that declared in webpack.config.js
+
+        const pageComponentRelation: Relation = {
+            RelationName: "SettingsBlock",
+            GroupName: "Block Settings",
+            SlugName: "block_settings",
+            Name: blockName,
+            Description: "Settings",
+            Type: "NgComponent",
+            SubType: "NG14",
+            AddonUUID: client.AddonUUID,
+            AddonRelativeURL: filename,
+            ComponentName: `BlockSettingsComponent`,
+            ModuleName: `BlockSettingsModule`,
+            ElementsModule: 'WebComponents',
+            ElementName: `settings-element-${client.AddonUUID}`,
+        };
+
+        const service = new MyService(client);
+        const result = await service.upsertRelation(pageComponentRelation);
+        return { success:true, resultObject: result };
+    } catch(err) {
+        return { success: false, resultObject: err , errorMessage: `Error in upsert relation. error - ${err}`};
+    }
+}
+
 async function createADALSchemes(client: Client) {
     try {
         const service = new MyService(client);
