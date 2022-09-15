@@ -24,6 +24,7 @@ export class BlockSettingsComponent implements OnInit {
 
   noDataMessage: string;
   presentedProfiles = [];
+  chatCustomizationList = [];
   onlineAPIButtonTitle: string;
   onlineAPIButtonStyleStateType: string;
   chatColor: string;
@@ -141,8 +142,8 @@ export class BlockSettingsComponent implements OnInit {
   getDataSource() {
     return {
       init: async (params: any) => {
-        let chatCustomizationList = await this.blockSettingsService.getChatCustomizationList();
-        this.presentedProfiles = chatCustomizationList.map(customization => customization.ProfileID);
+        this.chatCustomizationList = await this.blockSettingsService.getChatCustomizationList();
+        this.presentedProfiles = this.chatCustomizationList.map(customization => customization.ProfileID);
         return Promise.resolve({
           dataView: {
             Context: {
@@ -180,8 +181,8 @@ export class BlockSettingsComponent implements OnInit {
             FrozenColumnsCount: 0,
             MinimumColumnWidth: 0
           },
-          totalCount: chatCustomizationList.length,
-          items: chatCustomizationList
+          totalCount: this.chatCustomizationList.length,
+          items: this.chatCustomizationList
         });
       },
       inputs: {
@@ -228,7 +229,11 @@ export class BlockSettingsComponent implements OnInit {
     }
     return this.blockSettingsService.openDialog("", MessageDialogComponent, [], { data: dialogData }, (data) => {
       if (data) {
-        this.blockSettingsService.deleteChatCustomization(objs).then(() => {
+        let profilesToDelete = []
+        objs.rows.map(row => {
+          profilesToDelete.push(this.chatCustomizationList.find(obj => obj.ProfileID == row));
+        });
+        this.blockSettingsService.deleteChatCustomization(profilesToDelete).then(() => {
           this.listDataSource = this.getDataSource();
         });
       }

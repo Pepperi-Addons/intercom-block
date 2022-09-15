@@ -45,11 +45,13 @@
           [dataSource]="listDataSource"
           [actions]="actions" 
           [inline]="true" 
-          [showSearch]="false">
-          <ng-container right-buttons>
+          [uuidMapping]="'ProfileID'"
+          [showSearch]="false"
+          [showTopBar]="true">
+          <div class="right-buttons" right-buttons>
             <pep-button [sizeType]="'sm'" [classNames]="'pep-spacing-element'" iconName="number_plus"
               [styleType]="'strong'" (buttonClick)="openProfileForm(1)"></pep-button>
-          </ng-container>
+          </div>
         </pep-generic-list>
       </div>
 
