@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "cd ./client-side && npm run build && cd .. && cd ./cpi-side && npm run build && cd .. && cd ./server-side && npm run build && cd ..",
-		"init": "cd ./client-side && npm install && cd .. && cd ./cpi-side && npm install && cd .. && cd ./server-side && npm install && cd ..",
+		"init": "npm i && cd ./client-side && npm install --force && cd .. && cd ./cpi-side && npm install && cd .. && cd ./server-side && npm install && cd ..",
 		"client:addon": "cd client-side && ng serve --port 4400 --configuration SingleSpa && cd..",
 		"client:standalone": "cd client-side && ng serve --port 4400 --configuration Standalone && cd..",
 		"publish-addon": "npm run build && publish-addon",
@@ -16,6 +16,17 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@pepperi-addons/scripts": "^2.0.4"
+		"@peculiar/webcrypto": "^1.2.3",
+		"@pepperi-addons/scripts": "^2.0.4",
+		"crypto-browserify": "^3.11.0",
+		"crypto-js": "^4.1.1",
+		"cryptr": "^6.0.2",
+		"hex-to-hsl": "^1.0.2",
+		"hsl-to-hex": "^1.0.0",
+		"node-libs-browser": "^2.2.1",
+		"node-modules": "^1.0.1"
+	},
+	"devDependencies": {
+		"@types/node": "^17.0.10"
 	}
 }

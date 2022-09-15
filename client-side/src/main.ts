@@ -1,1 +1,1 @@
-import('./bootstrap');
+import('./bootstrap').catch(error => console.log(error));
