@@ -4,7 +4,7 @@ name: PublishAddon
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   publish-addon:
